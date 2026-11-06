@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="de">
+<title>Maschinenbau – Übersicht der Lerneinheiten</title>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg:#F4F5F6; --surface:#FFFFFF; --surface2:#F1F7FB; --ink:#1D1D1B; --muted:#56616B;
+  --line:#A9B4BD; --border:#E1E4E7; --blue:#0C77B7; --blue-soft:#E1EFF8;
+  --rust:#0A5A8C; --rust-soft:#E1EFF8; --ok:#2C7A4B; --ok-soft:#DDF0E3; --err:#B3261E; --err-soft:#F8DEDC;
+  --maybe:#8A6A12; --maybe-soft:#F5ECCF;
+  --display:'Segoe UI', Arial, sans-serif; --sans:'Segoe UI', Arial, sans-serif; --mono:Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1820; --surface:#16222D; --surface2:#1C2B38; --ink:#E4ECF2; --muted:#A5B6C4;
+    --line:#4E6272; --border:#2A3B4A; --blue:#5DB0E5; --blue-soft:#15324A;
+    --rust:#8CC8EE; --rust-soft:#15324A; --ok:#7FCB9B; --ok-soft:#173424; --err:#F28B82; --err-soft:#3D1D1B;
+    --maybe:#E3C46A; --maybe-soft:#352C12;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1820; --surface:#16222D; --surface2:#1C2B38; --ink:#E4ECF2; --muted:#A5B6C4;
+  --line:#4E6272; --border:#2A3B4A; --blue:#5DB0E5; --blue-soft:#15324A;
+  --rust:#8CC8EE; --rust-soft:#15324A; --ok:#7FCB9B; --ok-soft:#173424; --err:#F28B82; --err-soft:#3D1D1B;
+  --maybe:#E3C46A; --maybe-soft:#352C12;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.55}
+header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface); border-bottom:1px solid var(--border)}
+.top-inner{max-width:1000px; margin:0 auto; padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px}
+.brand{font-family:var(--display); font-weight:700; font-size:18px; margin-right:auto}
+nav.tabs{display:flex; flex-wrap:wrap; gap:6px}
+nav.tabs button{font:inherit; font-size:15px; font-weight:600; border:1px solid var(--border); background:var(--surface); color:var(--ink); border-radius:999px; padding:5px 13px; cursor:pointer; display:inline-flex; gap:6px; align-items:center}
+nav.tabs button[aria-current="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+nav.tabs .dot{width:8px; height:8px; border-radius:50%; background:var(--line)}
+nav.tabs .done .dot{background:var(--ok)}
+[hidden]{display:none!important}
+main{max-width:1000px; margin:0 auto; padding-inline:16px; padding-block:28px 80px; display:flex; flex-direction:column; gap:64px}
+section.station{display:flex; flex-direction:column; gap:22px; scroll-margin-top:110px}
+
+.saved{font-family:var(--sans); font-weight:500; font-size:13px; color:var(--ok); margin-left:10px}
+.io{display:flex; flex-direction:column; gap:10px; padding:18px 22px; border:1px dashed var(--line); border-radius:12px}
+.io h3{font-size:17px}
+.filebtn{display:inline-block; font-weight:600; border-radius:8px; padding:10px 18px; cursor:pointer; background:transparent; color:var(--blue); border:1px solid var(--blue)}
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+input.visually-hidden:focus-visible + *, .filebtn:focus-within{outline:3px solid var(--rust)}
+.linkbtn{font:inherit; font-size:14px; background:none; border:0; color:var(--blue); text-decoration:underline; cursor:pointer; padding:4px}
+.eyebrow{font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--rust); margin:0}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; line-height:1.2}
+h1{font-size:clamp(28px,4vw,38px)}
+h2{font-size:24px}
+h3{font-size:19px}
+p{margin:0}
+.lead{font-size:19px; color:var(--muted)}
+.input{background:var(--surface2); border-radius:12px; padding:22px; display:flex; flex-direction:column; gap:14px}
+.input .tag, .task .tag{font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase}
+.input .tag{color:var(--blue)}
+.input p, .input li{max-width:none}
+.input ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
+.task{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; display:flex; flex-direction:column; gap:16px}
+.task .tag{color:var(--rust)}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px}
+.grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:8px}
+.card h3{font-size:17px}
+.card .then{font-size:15px; color:var(--muted)}
+.mono{font-family:var(--mono); font-size:.92em}
+label{font-weight:600}
+textarea, input[type=text], select{font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:9px 11px; width:100%}
+textarea{min-height:90px; resize:vertical}
+button.btn{font:inherit; font-weight:600; border:0; border-radius:8px; padding:10px 18px; cursor:pointer; background:var(--blue); color:var(--bg)}
+button.btn.secondary{background:transparent; color:var(--blue); border:1px solid var(--blue)}
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible{outline:3px solid var(--rust); outline-offset:2px}
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.score{font-weight:700; font-variant-numeric:tabular-nums}
+.fb{font-size:15px; border-radius:8px; padding:10px 12px}
+.fb.ok{background:var(--ok-soft); color:var(--ink); border-left:4px solid var(--ok)}
+.fb.err{background:var(--err-soft); color:var(--ink); border-left:4px solid var(--err)}
+.fb.maybe{background:var(--maybe-soft); color:var(--ink); border-left:4px solid var(--maybe)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* Rohstoff/Werkstoff toggles */
+.rw{display:flex; flex-direction:column; gap:8px}
+.rw-item{display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center; padding:10px 12px; border:1px solid var(--border); border-radius:8px}
+.rw-item .seg{display:flex; gap:0}
+.seg button{font:inherit; font-size:14px; font-weight:600; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:5px 12px; cursor:pointer}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0; border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.rw-item .fb{grid-column:1 / -1}
+
+/* Baum */
+.bank{display:flex; flex-wrap:wrap; gap:8px; min-height:44px; padding:10px; border:1px dashed var(--line); border-radius:10px}
+.chip{font:inherit; font-size:15px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--blue); background:var(--blue-soft); color:var(--ink); cursor:grab}
+.chip[aria-pressed="true"]{background:var(--blue); color:var(--bg)}
+.tree-wrap{overflow-x:auto; padding-bottom:6px}
+.tree{min-width:920px}
+.tree ul{position:relative; display:flex; justify-content:center; margin:0; padding:22px 0 0}
+.tree li{list-style:none; position:relative; padding:22px 5px 0; display:flex; flex-direction:column; align-items:center; flex:1}
+.tree li::before,.tree li::after{content:''; position:absolute; top:0; right:50%; width:50%; height:22px; border-top:2px solid var(--line)}
+.tree li::after{right:auto; left:50%; border-left:2px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}
+.tree li:only-child{padding-top:0}
+.tree li:first-child::before,.tree li:last-child::after{border:0}
+.tree li:last-child::before{border-right:2px solid var(--line); border-radius:0 6px 0 0}
+.tree li:first-child::after{border-radius:6px 0 0 0}
+.tree ul ul::before{content:''; position:absolute; top:0; left:50%; height:22px; border-left:2px solid var(--line)}
+.node{font-weight:700; padding:8px 14px; border-radius:8px; background:var(--ink); color:var(--bg); white-space:nowrap}
+.slot{font:inherit; font-size:14px; font-weight:600; min-width:128px; min-height:40px; padding:7px 10px; border-radius:8px; border:2px dashed var(--line); background:var(--surface); color:var(--muted); cursor:pointer; white-space:nowrap}
+.slot.filled{border-style:solid; border-color:var(--blue); color:var(--ink); background:var(--blue-soft)}
+.slot.ok{border-color:var(--ok); background:var(--ok-soft)}
+.slot.err{border-color:var(--err); background:var(--err-soft)}
+.slot.over{border-color:var(--rust)}
+.ex{font-size:13px; color:var(--muted); margin-top:5px; text-align:center; line-height:1.35}
+
+/* Tabellen */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse; width:100%; min-width:560px}
+th,td{padding:9px 10px; border-bottom:1px solid var(--border); text-align:left; vertical-align:middle}
+th{font-size:14px; color:var(--muted); font-weight:600}
+td.c{text-align:center}
+td.c input{width:22px; height:22px; accent-color:var(--blue); cursor:pointer}
+td.ok{background:var(--ok-soft)} td.err{background:var(--err-soft)} td.maybe{background:var(--maybe-soft)}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:14px}
+.legend span::before{content:''; display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px}
+.legend .l-ok::before{background:var(--ok-soft); border:1px solid var(--ok)}
+.legend .l-err::before{background:var(--err-soft); border:1px solid var(--err)}
+.legend .l-maybe::before{background:var(--maybe-soft); border:1px solid var(--maybe)}
+
+/* Multiple Choice */
+.mc{display:flex; flex-direction:column; gap:10px; padding:16px; border:1px solid var(--border); border-radius:10px}
+.mc .q{font-weight:600}
+.mc .opts{display:flex; flex-direction:column; gap:6px}
+.opt{font:inherit; text-align:left; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); cursor:pointer}
+.opt:hover{border-color:var(--blue)}
+.opt.ok{background:var(--ok-soft); border-color:var(--ok)}
+.opt.err{background:var(--err-soft); border-color:var(--err)}
+.opt:disabled{cursor:default}
+
+/* Fälle */
+.case{display:flex; flex-direction:column; gap:12px; padding:18px; border:1px solid var(--border); border-radius:10px; background:var(--surface)}
+.case .head{display:flex; gap:10px; align-items:baseline}
+.case .num{font-family:var(--mono); color:var(--rust); font-weight:500}
+.crit{display:flex; flex-wrap:wrap; gap:8px}
+.crit span{font-size:14px; padding:4px 10px; border-radius:999px; background:var(--surface); border:1px solid var(--border)}
+.summary{font-family:var(--mono); font-size:13px; min-height:220px}
+.save-note{font-size:14px; color:var(--muted)}
+@media (prefers-reduced-motion: no-preference){ .opt, .slot, .chip{transition:background-color .15s, border-color .15s} }
+
+/* Seiten-Design */
+.start-cta{display:flex; justify-content:center; padding:16px 0 8px}
+.btn.big{font-size:19px; padding:16px 36px; border-radius:6px; box-shadow:0 2px 6px rgba(12,119,183,.25)}
+
+td.c .mark{display:block; font-size:12px; font-weight:700; margin-top:3px; white-space:nowrap}
+td.ok .mark{color:var(--ok)} td.err .mark{color:var(--err)} td.maybe .mark{color:var(--maybe)}
+button[aria-disabled="true"]{opacity:.55; cursor:not-allowed}
+.lock-msg{color:var(--err); font-weight:600}
+.site-head{background:#FFFFFF; border-bottom:1px solid #E6E6E6}
+.site-inner{max-width:1000px; margin:0 auto; padding:18px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:14px 28px}
+.logo{height:72px; width:auto; display:block}
+.unit{display:flex; flex-direction:column; gap:2px; border-left:3px solid #0C77B7; padding-left:16px}
+.unit-k{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#56616B}
+.site-head .brand{font-family:'Segoe UI',Arial,sans-serif; font-weight:700; font-size:20px; color:#0C77B7; margin:0}
+header.top{box-shadow:0 2px 4px rgba(0,0,0,.06)}
+.top-inner{padding:0 16px; gap:0 16px; justify-content:space-between}
+nav.tabs{gap:0 4px}
+nav.tabs button{border:0; border-radius:0; background:transparent; color:var(--blue); text-transform:uppercase; font-size:14px; font-weight:700; letter-spacing:.02em; padding:14px 12px 11px; border-bottom:3px solid transparent}
+nav.tabs button:hover{border-bottom-color:var(--blue-soft)}
+nav.tabs button[aria-current="true"]{background:transparent; color:var(--blue); border-bottom-color:var(--blue)}
+.saved{margin-left:0; padding:6px 0}
+section.station{scroll-margin-top:70px}
+h1,h2,h3{font-weight:700; letter-spacing:-.01em}
+h1{font-weight:800}
+.eyebrow{color:var(--blue)}
+button.btn, .filebtn, textarea, input[type=text], select{border-radius:4px}
+.input, .task, .calc, .io, .case, .card, .mc{border-radius:6px}
+@media (max-width:560px){ nav.tabs button{padding:9px 7px 7px; font-size:13px} .logo{height:56px} .saved{font-size:12px} }
+.site-foot{max-width:1000px; margin:0 auto; padding:24px 16px 40px; border-top:1px solid var(--border); font-size:13px; color:var(--muted)}
+
+/* ===== Gemeinsame Ergänzungen (Speichern, Musterbeispiel, Grafiken) ===== */
+.saved.warn{color:var(--err)}
+.resumebar{max-width:1000px; margin:12px auto 0; padding:14px 18px; display:flex; flex-direction:column; gap:10px; background:var(--maybe-soft); border:2px solid var(--maybe); border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.resumebar-wrap{padding-inline:16px}
+.lm-more summary{cursor:pointer; font-weight:600; font-size:15px; color:var(--blue)}
+body.lm-drop::after{content:"Speicherstand-Datei hier loslassen"; position:fixed; inset:12px; border:4px dashed var(--blue); border-radius:16px; background:color-mix(in srgb, var(--surface) 85%, transparent); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:var(--blue); z-index:50; pointer-events:none}
+.muster{display:flex; flex-direction:column; gap:10px; padding:18px; border:2px solid var(--blue); border-radius:6px; background:var(--blue-soft)}
+.muster .tag{font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin:0}
+.muster .solbox{background:var(--surface)}
+.msteps{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:8px}
+.msteps li.off{color:var(--muted)}
+.msteps li.off b{font-weight:600}
+.msteps .solbox{margin-top:4px; font-family:var(--sans); line-height:1.6}
+.solbox{font-size:15px; background:var(--surface2); border-radius:6px; padding:10px 12px; line-height:1.7; overflow-x:auto}
+.helpbar{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center}
+.hintbox, .solution{font-size:15px}
+.fb.info{background:var(--blue-soft); border-left:4px solid var(--blue)}
+
+/* Grafiken */
+.figure{background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:14px; display:flex; flex-direction:column; gap:12px}
+.figure .cap{font-size:14px; color:var(--muted)}
+svg.gfx{width:100%; height:auto; display:block; overflow:visible}
+svg.gfx text{font-family:var(--sans); fill:var(--ink)}
+svg.gfx .lbl{font-size:14px; font-weight:600}
+svg.gfx .lbl-s{font-size:12px; fill:var(--muted)}
+svg.gfx .axis{stroke:var(--ink); stroke-width:1.2; fill:none}
+svg.gfx .grid{stroke:var(--border); stroke-width:1; fill:none}
+svg.gfx .lead{stroke:var(--muted); stroke-width:1; fill:none}
+svg.gfx .hot{cursor:pointer}
+svg.gfx .hot:focus{outline:none}
+svg.gfx .hot:focus-visible .ring, svg.gfx .hot.on .ring{stroke:var(--rust); stroke-width:3}
+svg.gfx .ring{fill:var(--surface); stroke:var(--blue); stroke-width:2}
+svg.gfx .ringtxt{font-size:13px; font-weight:700; fill:var(--blue); text-anchor:middle; dominant-baseline:central; pointer-events:none}
+.sim{display:grid; grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr); gap:16px; align-items:start}
+@media (max-width:760px){ .sim{grid-template-columns:1fr} }
+.sim.wide{grid-template-columns:1fr}
+.sim.wide .ctrl{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px 20px; align-items:start}
+.sim.wide .ctrl .readout, .sim.wide .ctrl > p{grid-column:1/-1}
+.ctrl{display:flex; flex-direction:column; gap:12px}
+.ctrl label{font-size:14px; display:flex; flex-direction:column; gap:4px}
+.ctrl input[type=range]{width:100%; accent-color:var(--blue)}
+.ctrl .val{font-family:var(--mono); font-size:14px; color:var(--blue)}
+.readout{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:15px; background:var(--surface2); padding:10px 12px; border-radius:6px}
+.readout b{font-family:var(--mono); font-weight:500}
+.question{font-size:15px; border-left:4px solid var(--maybe); background:var(--maybe-soft); padding:9px 12px; border-radius:6px}
+.segbtns{display:flex; flex-wrap:wrap; gap:6px}
+.segbtns button{font:inherit; font-size:14px; font-weight:600; padding:6px 12px; border-radius:4px; border:1px solid var(--blue); background:var(--surface); color:var(--blue); cursor:pointer}
+.segbtns button[aria-pressed="true"]{background:var(--blue); color:var(--bg)}
+.infobox{min-height:64px}
+#savepanel .mono, .resumebar .mono{word-break:break-all; overflow-wrap:anywhere}
+/* Struktur: Einführung, Schritte, Problemstellung, Antwort */
+.intro{display:flex; flex-direction:column; gap:10px}
+.stepbox{background:var(--surface); border:1px solid var(--border); border-left:6px solid var(--blue); border-radius:6px; padding:20px 22px; display:flex; flex-direction:column; gap:14px}
+.stepbox h2, .stepbox .sumh{display:flex; align-items:center; gap:12px; font-size:22px; font-weight:700; margin:0}
+.stepbox .no{flex:none; display:inline-flex; width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--bg); align-items:center; justify-content:center; font-size:18px; font-weight:800}
+.stepbox.save{border-left-color:var(--maybe); background:var(--maybe-soft)}
+.stepbox.save .no{background:var(--maybe)}
+.stepbox.save.done{border-left-color:var(--ok); background:var(--ok-soft)}
+.stepbox.save.done .no{background:var(--ok)}
+details.stepbox > summary{cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px}
+details.stepbox > summary::-webkit-details-marker{display:none}
+details.stepbox[open] > summary{margin-bottom:6px}
+.problem{font-size:20px; font-weight:700; color:var(--rust); border-left:4px solid var(--rust); padding:4px 0 4px 14px; margin:0}
+.answer{background:var(--ok-soft); border:2px solid var(--ok); border-radius:6px; padding:16px 18px; display:flex; flex-direction:column; gap:8px}
+.goals{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:4px}
+table.plan td, table.plan th{vertical-align:top}
+.okmark{color:var(--ok); font-weight:700; white-space:nowrap}
+.nowrap{white-space:nowrap}
+.saved .linkbtn{font-size:13px; padding:0 2px; color:var(--err); font-weight:700}
+/* Startfenster: Speicherort als Pflichtschritt */
+body.lm-gated{overflow:hidden}
+#lm-gate{position:fixed; inset:0; z-index:100; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:16px; overflow:auto}
+.lm-gate-card{background:var(--surface); color:var(--ink); max-width:640px; width:100%; margin:auto; border-radius:10px; border-top:10px solid var(--maybe); padding:26px 28px; display:flex; flex-direction:column; gap:14px; box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.lm-gate-card h2{display:flex; align-items:center; gap:12px; font-size:24px; margin:0}
+.lm-gate-card .no{flex:none; display:inline-flex; width:40px; height:40px; border-radius:50%; background:var(--maybe); color:#fff; align-items:center; justify-content:center; font-weight:800; font-size:20px}
+.lm-gate-steps{margin:0; padding-left:24px; display:flex; flex-direction:column; gap:6px}
+.lm-gate-card .mono{word-break:break-all}
+.btn.big{font-size:19px; padding:14px 30px}
+.saved.warn{background:var(--err); color:#fff; padding:5px 12px; border-radius:999px; font-weight:700; margin:4px 0}
+.saved.warn .linkbtn{color:#fff; text-decoration:underline; font-weight:800}
+@media (max-width:560px){ .lm-gate-card{padding:20px 18px} .lm-gate-card h2{font-size:20px} }
+
+.lm-gate-card.ok{border-top-color:var(--ok)} .lm-gate-card .no.ok{background:var(--ok)}
+body.lm-gated .site-head, body.lm-gated header.top, body.lm-gated main, body.lm-gated .site-foot{visibility:hidden}
+
+/* Das Wichtigste auf einen Blick */
+.merke{border-top:6px solid var(--ok)}
+.mk-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px}
+.mk-item{display:flex; gap:10px; align-items:flex-start; background:var(--surface2); border-radius:8px; padding:12px 14px}
+.mk-no{flex:none; width:28px; height:28px; border-radius:50%; background:var(--ok); color:var(--bg); display:inline-flex; align-items:center; justify-content:center; font-weight:800}
+.mk-f{grid-column:1/-1; background:var(--blue-soft); border-radius:8px; padding:12px 14px}
+.mk-f > div{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:6px}
+
+/* Link zurück zur Übersicht (nur sichtbar, wenn die Übersicht bekannt ist) */
+.site-inner .lm-back{margin-left:auto; flex:none; font-size:14px; font-weight:600; color:var(--blue); text-decoration:none; border:1px solid var(--blue); border-radius:999px; padding:5px 12px; white-space:nowrap}
+.site-inner .lm-back:hover{background:var(--blue-soft)}
+@media print{ .lm-back{display:none} }
+/* Zusatz-Uhr (LM.ZxClock) */
+.zxgate{display:flex; flex-direction:column; gap:10px; align-items:flex-start; padding:16px 18px; border:2px dashed var(--blue); border-radius:10px; background:var(--surface)}
+.zxgate p{margin:0}
+.zxclock-float{position:fixed; right:16px; top:40%; z-index:50; display:flex; flex-direction:column; gap:4px; align-items:flex-end; padding:10px 14px; border-radius:10px; background:var(--surface); border:1px solid var(--border); box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:14px}
+.zxclock-float .t{font-family:var(--mono); font-size:22px; font-weight:600; color:var(--ink)}
+@media (max-width:1100px){ .zxclock-float{top:auto; bottom:0; left:0; right:0; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:4px 14px; border-radius:10px 10px 0 0; padding:8px 12px} .zxclock-float .t{font-size:18px} }
+@media (max-width:1100px){ body.zx-running{padding-bottom:64px} }
+
+/* ---------- Übersicht ---------- */
+main#ov{gap:40px}
+.small{font-size:14px} .muted{color:var(--muted)}
+button.btn.small, .filebtn.small{font-size:14px; padding:7px 14px}
+.ov-intro{display:flex; flex-direction:column; gap:12px}
+.ov-total{background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 22px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:14px 28px; align-items:center}
+.ov-total h2{font-size:20px}
+.ov-total-bar{display:flex; align-items:center; gap:12px}
+.ov-src{grid-column:1/-1; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:14px}
+#src.ok{color:var(--ok)} #src.warn{color:var(--maybe)}
+.pct{font-weight:800; font-size:22px; font-variant-numeric:tabular-nums; min-width:3.2em; text-align:right}
+
+.bar{position:relative; flex:1; height:10px; border-radius:999px; background:var(--border); overflow:hidden}
+.bar.big{height:16px}
+.bar > span{position:absolute; inset:0 auto 0 0; width:0; border-radius:inherit; background:var(--blue)}
+.bar.full > span{background:var(--ok)}
+.bar.unknown > span{width:100%!important; background:repeating-linear-gradient(-45deg, var(--blue-soft) 0 8px, transparent 8px 16px)}
+@media (prefers-reduced-motion: no-preference){ .bar > span{transition:width .5s ease} }
+
+.chapter{display:flex; flex-direction:column; gap:14px}
+.chapter + .chapter{margin-top:8px}
+.chapter-h{display:flex; align-items:baseline; gap:12px; border-bottom:2px solid var(--blue); padding-bottom:6px}
+.chapter-h .no{font-size:28px; font-weight:800; color:var(--blue); line-height:1}
+.chapter-h h2{font-size:21px}
+.chapter-h .cnt{margin-left:auto; font-size:13px; color:var(--muted); white-space:nowrap}
+.units{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px}
+
+.le{background:var(--surface); border:1px solid var(--border); border-left:5px solid var(--line); border-radius:6px; padding:16px 18px; display:flex; flex-direction:column; gap:10px; color:inherit; text-decoration:none}
+a.le:hover{border-color:var(--blue); box-shadow:0 2px 10px rgba(12,119,183,.15)}
+a.le:focus-visible{outline:3px solid var(--rust); outline-offset:2px}
+.le.started{border-left-color:var(--blue)}
+.le.done{border-left-color:var(--ok)}
+.le .le-k{display:flex; justify-content:space-between; gap:8px; align-items:center}
+.le .le-no{font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--blue)}
+.le h3{font-size:17px; line-height:1.3}
+.le .le-bar{display:flex; align-items:center; gap:10px}
+.le .le-frac{font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; min-width:5.5em; text-align:right}
+.le .le-foot{display:flex; justify-content:space-between; gap:8px; font-size:13px; color:var(--muted); margin-top:auto}
+.le .go{font-weight:700; color:var(--blue); white-space:nowrap}
+.chip{font-size:12px; font-weight:700; border-radius:999px; padding:2px 10px; white-space:nowrap; background:var(--border); color:var(--muted)}
+.chip.started{background:var(--blue-soft); color:var(--blue)}
+.chip.done{background:var(--ok-soft); color:var(--ok)}
+.le.soon{background:transparent; border-style:dashed; border-left-width:1px; opacity:.75}
+.le.soon h3{color:var(--muted); font-weight:600}
+
+.ov-hint{border-top:1px solid var(--border); padding-top:14px}
+.dropmsg{display:none}
+body.drop .dropmsg{display:flex; position:fixed; inset:12px; z-index:200; border:4px dashed var(--blue); border-radius:12px; background:color-mix(in srgb, var(--bg) 88%, transparent); align-items:center; justify-content:center; font-size:24px; font-weight:700; color:var(--blue); pointer-events:none}
+
+/* Startfenster (wie in den Einheiten) */
+body.gated{overflow:hidden}
+body.gated main, body.gated .site-foot{visibility:hidden}
+#gate:empty{display:none}
+#gate{position:fixed; inset:0; z-index:100; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:16px; overflow:auto}
+#gate .lm-gate-card .row{margin-top:4px}
+
+@media (max-width:700px){ .ov-total{grid-template-columns:1fr} }
+@media (max-width:560px){ .units{grid-template-columns:1fr} .chapter-h h2{font-size:19px} .ov-total{padding:16px} }
+@media print{ #gate, .ov-src, .ov-hint, .site-foot{display:none!important} .le{break-inside:avoid} }
+</style>
+<div class="site-head">
+  <div class="site-inner">
+    
+    <div class="unit"><span class="unit-k">Technisches Gymnasium</span><span class="brand">Maschinenbau · Alle Lerneinheiten</span></div>
+  </div>
+</div>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h"></div>
+
+<main id="ov">
+  <section class="ov-intro">
+    <p class="eyebrow">Übersicht</p>
+    <h1>Deine Lerneinheiten in Maschinenbau</h1>
+    <p class="lead">Hier siehst du alle Lerneinheiten in der Reihenfolge des Lehrplans. Der Balken zeigt, wie viele Stationen du schon erledigt hast. Er wird aus deinen Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) gelesen.</p>
+  </section>
+
+  <section class="ov-total" aria-labelledby="total-h">
+    <div class="ov-total-text">
+      <h2 id="total-h">Dein Gesamtfortschritt</h2>
+      <p id="total-sub" class="small muted"></p>
+    </div>
+    <div class="ov-total-bar">
+      <div class="bar big" role="progressbar" aria-labelledby="total-h" aria-valuemin="0" aria-valuemax="100" id="total-bar"><span></span></div>
+      <span id="total-pct" class="pct"></span>
+    </div>
+    <div class="ov-src">
+      <span id="src" class="small"></span>
+      <div class="row">
+        <button type="button" class="btn small" id="refresh" hidden>↻ Aktualisieren</button>
+        <button type="button" class="btn small secondary" id="pick">Speicherordner wählen</button>
+        <label class="filebtn small" for="load">Speicherdateien laden</label><input type="file" id="load" accept=".txt,text/plain" multiple class="visually-hidden">
+      </div>
+    </div>
+  </section>
+
+  <div id="chapters"></div>
+
+  <p class="small muted ov-hint">Tipp: Du kannst Speicherdateien (<span class="mono">.txt</span>) auch einfach auf diese Seite ziehen. Jede Lerneinheit funktioniert weiterhin auch allein, ohne diese Übersicht.</p>
+</main>
+
+<footer class="site-foot">Technisches Gymnasium · Maschinenbau</footer>
+<div class="dropmsg" aria-hidden="true">Speicherdateien hier ablegen</div>
+
+<script>
+const DATA = {"chapters": [{"no": "1", "title": "Technische Kommunikation"}, {"no": "2", "title": "Fertigungstechnik"}, {"no": "3", "title": "Werkstoffkunde"}, {"no": "4", "title": "Pneumatik"}], "units": [{"nr": "1.4", "title": "Prüfen, Messen, Lehren", "file": "Lehrplaneinheit_1.4_Pruefen_Messen_Lehren.html", "id": "lpe-1.4"}, {"nr": "1", "title": "Wiederholung – Klausurvorbereitung Technische Kommunikation", "file": "Lehrplaneinheit_1_Wiederholung_Technische_Kommunikation.html", "id": "lpe-1-wdh", "sort": "1.99"}], "soon": []};
+/* Übersicht aller Lerneinheiten: liest *_Speicherstand.txt aus dem Speicherordner und zeigt den Fortschritt.
+   Erwartet global DATA = {chapters:[{no,title}], units:[{nr,title,file,id}], soon:[{nr,title}]} (von mk_uebersicht.py). */
+(function(){
+"use strict";
+const $ = (s, r=document) => r.querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FS_OK = typeof window.showDirectoryPicker === "function" && typeof indexedDB !== "undefined";
+
+/* gleicher Speicher wie in den Einheiten (common.js): gemerkter Speicherordner */
+const IDB = {
+  open(){ return new Promise((res,rej)=>{ const r=indexedDB.open("lernmodul-speicher",1); r.onupgradeneeded=()=>r.result.createObjectStore("handles"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); },
+  async get(k){ try{ const db=await this.open(); return await new Promise(res=>{ const q=db.transaction("handles").objectStore("handles").get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(undefined); }); }catch(e){ return undefined; } },
+  async set(k,v){ try{ const db=await this.open(); await new Promise(res=>{ const t=db.transaction("handles","readwrite"); t.objectStore("handles").put(v,k); t.oncomplete=res; t.onerror=res; }); }catch(e){} }
+};
+/* Einheiten merken sich so, wo die Übersicht liegt (Link „Alle Lerneinheiten“) */
+try { localStorage.setItem("lm-uebersicht-mb", location.href.split("#")[0]); } catch(e){}
+
+/* ---------- Daten ---------- */
+const units = DATA.units.map(u => Object.assign({}, u));
+const P = {};          // moduleId -> {done,total,ts,file,known}
+let dir = null, perm = "none", source = "", lastRead = null;
+
+/* Buchstaben (3.2a, 3.2b) als eigene Ebene vor den Unternummern (3.2.1): 3.2a < 3.2b < 3.2.1 */
+const key = nr => { const o = []; String(nr).split(".").forEach(x => { const m = x.match(/^(\d+)([a-z]*)$/i); if(m){ o.push([+m[1], ""]); if(m[2]) o.push([-1, m[2]]); } else o.push([0, x]); }); return o; };
+function cmp(a, b){ const A = key(a), B = key(b); for(let i=0;i<Math.max(A.length,B.length);i++){ const x=A[i]||[-1,""], y=B[i]||[-1,""]; if(x[0]!==y[0]) return x[0]-y[0]; if(x[1]!==y[1]) return x[1]<y[1]?-1:1; } return 0; }
+
+function take(id, rec){
+  if(!id) return;
+  const old = P[id], a = rec.ts||0, b = old ? old.ts||0 : -1;
+  /* neuerer Stand gewinnt; liegen beide in derselben Minute, gewinnt der mit Fortschrittsangabe */
+  if(!old || (Math.abs(a-b) < 60000 ? (rec.total!=null || old.total==null) : a > b)) P[id] = Object.assign({}, rec, {ts: Math.max(a, b)});
+}
+function parseTxt(txt, fallbackTs, name){
+  const id = (txt.match(/MODUL-ID: (\S+)/)||[])[1]; if(!id) return false;
+  const f = txt.match(/FORTSCHRITT: (\d+)\/(\d+)/);
+  const s = txt.match(/Stand: (\d{1,2})\.(\d{1,2})\.(\d{4}),? (\d{1,2}):(\d{2})/);
+  const ts = s ? new Date(+s[3], +s[2]-1, +s[1], +s[4], +s[5]).getTime() : fallbackTs;
+  take(id, {done: f ? +f[1] : null, total: f ? +f[2] : null, ts, file: name, txt: f ? null : txt});
+  return true;
+}
+function fromBrowser(){
+  try {
+    const all = JSON.parse(localStorage.getItem("lm-fortschritt")||"{}") || {};
+    Object.entries(all).forEach(([id, r]) => { if(r && r.total) take(id, {done:r.done, total:r.total, ts:r.ts, file:"Browser"}); });
+  } catch(e){}
+}
+
+/* ---------- Ordner lesen ---------- */
+async function readDir(){
+  if(!dir) return;
+  let n = 0;
+  const found = [];
+  for await (const [name, h] of dir.entries()){
+    if(h.kind !== "file") continue;
+    try {
+      if(/\.txt$/i.test(name)){
+        const f = await h.getFile(); if(f.size > 3e6) continue;
+        if(parseTxt(await f.text(), f.lastModified, name)) n++;
+      } else if(/^Lehrplaneinheit.*\.html$/i.test(name) && !units.some(u => u.file === name)){
+        found.push([name, h]);
+      }
+    } catch(e){}
+  }
+  /* neue Einheiten, die nach dem Bauen der Übersicht in den Ordner gelegt wurden */
+  for(const [name, h] of found){
+    try {
+      const t = await (await h.getFile()).text();
+      const id = (t.match(/\bid:"(lpe-[^"]+)"/) || t.match(/MODULE_ID = "([^"]+)"/) || [])[1];
+      const title = ((t.match(/<title>([^<]*)<\/title>/)||[])[1]||name).replace(/^Lehrplaneinheit\s+/, "");
+      const nr = (title.match(/^(\d+(?:\.\d+)*[a-z]?)/i)||name.match(/(\d+(?:\.\d+)*[a-z]?)/i)||[])[1] || "";
+      units.push({nr, title: title.replace(nr, "").trim(), file: name, id});
+    } catch(e){}
+  }
+  lastRead = new Date();
+  source = `Speicherordner „${dir.name}“ · ${n} Speicherdatei${n===1?"":"en"} gelesen · ${lastRead.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})} Uhr`;
+}
+async function connect(){
+  try { const h = await window.showDirectoryPicker({id:"lernmodul", mode:"read"}); dir = h; perm = "granted"; await IDB.set("ordner", h); }
+  catch(e){ return false; }
+  await readDir(); render(); probeAll(); return true;
+}
+async function resume(){
+  try { perm = await dir.requestPermission({mode:"read"}); } catch(e){ perm = "prompt"; }
+  if(perm === "granted"){ await readDir(); render(); probeAll(); return true; }
+  return false;
+}
+async function loadFiles(list){
+  let n = 0;
+  for(const f of Array.from(list||[])){ if(!/\.txt$/i.test(f.name) && f.type !== "text/plain") continue; try { if(parseTxt(await f.text(), f.lastModified, f.name)) n++; } catch(e){} }
+  if(!dir) source = `${n} Speicherdatei${n===1?"":"en"} geladen`;
+  render(); probeAll();
+  return n;
+}
+
+/* ---------- Startfenster ---------- */
+let gateOpen = true;
+function gate(mode){
+  const g = $("#gate");
+  if(!mode){ g.innerHTML = ""; document.body.classList.remove("gated"); gateOpen = false; return; }
+  document.body.classList.add("gated"); gateOpen = true;
+  let body = "";
+  if(mode === "resume"){
+    body = `<h2 id="gate-h"><span class="no">0</span>Speicherordner wieder verbinden</h2>
+      <p>Dein Speicherordner <b>„${esc(dir.name)}“</b> ist bekannt. Klicke auf <b>„Weiterarbeiten“</b> und bestätige die Frage des Browsers. Dann werden deine Speicherdateien gelesen und die Fortschrittsbalken ergänzt.</p>
+      <div class="row"><button type="button" class="btn big" data-g="resume">Weiterarbeiten</button><button type="button" class="btn secondary" data-g="connect">Anderen Ordner wählen</button></div>`;
+  } else if(mode === "nofs"){
+    body = `<h2 id="gate-h"><span class="no">0</span>Speicherdateien laden</h2>
+      <p>Dein Browser kann keinen Ordner auslesen (z. B. Firefox, Safari, iPad). Lade deine Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) von Hand, du kannst mehrere auf einmal wählen. Oder ziehe sie auf diese Seite.</p>
+      <p class="small muted">Am PC mit <b>Chrome oder Edge</b> geht es automatisch.</p>
+      <div class="row"><label class="filebtn" for="gate-load">Speicherdateien laden</label><input type="file" id="gate-load" accept=".txt,text/plain" multiple class="visually-hidden"><button type="button" class="linkbtn" data-g="skip">Ohne Speicherdateien weiter</button></div>`;
+  } else {
+    body = `<h2 id="gate-h"><span class="no">0</span>Speicherordner wählen</h2>
+      <p>Damit die Übersicht zeigt, was du schon bearbeitet hast, liest sie deine Speicherdateien (<span class="mono">…_Speicherstand.txt</span>).</p>
+      <ol class="lm-gate-steps"><li>Klicke auf <b>„Speicherordner wählen“</b>.</li><li>${location.protocol==="file:" ? "Wähle den Ordner, in dem diese Übersicht, die Lerneinheiten und deine Speicherdateien liegen." : "Wähle den Ordner auf deinem Rechner, in dem deine Speicherdateien liegen (den du auch in den Lerneinheiten gewählt hast)."}</li><li>Bestätige die Frage des Browsers.</li></ol>
+      ${mode === "failed" ? `<div class="fb maybe small">Kein Ordner gewählt. Versuche es noch einmal oder <button type="button" class="linkbtn" data-g="skip">sieh dir die Übersicht ohne Speicherdateien an</button>.</div>` : ""}
+      <div class="row"><button type="button" class="btn big" data-g="connect">Speicherordner wählen</button>${mode === "failed" ? "" : `<button type="button" class="linkbtn" data-g="skip">Ohne Ordner ansehen</button>`}</div>`;
+  }
+  g.innerHTML = `<div class="lm-gate-card">${body}</div>`;
+  const f = g.querySelector(".btn, .filebtn"); if(f) f.focus();
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-g]"); if(b){
+    const a = b.dataset.g;
+    if(a === "connect"){ if(await connect()) gate(null); else gate("failed"); }
+    else if(a === "resume"){ if(await resume()) gate(null); }
+    else if(a === "skip"){ gate(null); render(); }
+    return;
+  }
+  if(e.target.id === "pick"){ if(FS_OK) await connect(); else $("#load").click(); }
+  if(e.target.id === "refresh"){ if(dir){ if(perm !== "granted") await resume(); else { await readDir(); render(); probeAll(); } } }
+});
+document.addEventListener("change", async e => {
+  if(e.target.id === "load" || e.target.id === "gate-load"){ await loadFiles(e.target.files); e.target.value = ""; if(gateOpen) gate(null); }
+});
+const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types||[]).includes("Files");
+document.addEventListener("dragover", e => { if(hasFiles(e)){ e.preventDefault(); document.body.classList.add("drop"); } });
+document.addEventListener("dragleave", e => { if(e.target === document.documentElement || e.clientX <= 0 || e.clientY <= 0) document.body.classList.remove("drop"); });
+document.addEventListener("drop", async e => { if(!hasFiles(e)) return; e.preventDefault(); document.body.classList.remove("drop"); await loadFiles(e.dataTransfer.files); if(gateOpen) gate(null); });
+/* zurück aus einer Einheit: Balken automatisch auffrischen */
+document.addEventListener("visibilitychange", async () => { if(document.visibilityState === "visible" && !gateOpen){ fromBrowser(); if(dir && perm === "granted") await readDir(); render(); probeAll(); } });
+
+/* ---------- Ältere Speicherdateien ohne FORTSCHRITT-Zeile ----------
+   Die Einheit wird unsichtbar mit #lm-probe geladen, liest den Speicherstand ein und meldet
+   ihren Fortschritt (gleiche Zählung wie ihre Ablauftabelle). Sie speichert dabei nichts. */
+let probing = false;
+const PC = new Map();   // Ergebnis je Dateiinhalt merken
+function probeOne(u, txt){
+  return new Promise(resolve => {
+    const f = document.createElement("iframe"), req = Math.random().toString(36).slice(2);
+    f.setAttribute("aria-hidden", "true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed; left:-12000px; top:0; width:1100px; height:800px; border:0; visibility:hidden";
+    let done = false;
+    const finish = r => { if(done) return; done = true; window.removeEventListener("message", on); clearTimeout(t); f.remove(); resolve(r); };
+    const on = e => {
+      if(e.source !== f.contentWindow || !e.data) return;
+      if(e.data.lmProbeReady) f.contentWindow.postMessage({lmProbe:true, req, txt}, "*");
+      else if(e.data.lmProbeResult && e.data.req === req) finish(e.data);
+    };
+    const t = setTimeout(() => finish(null), 10000);
+    window.addEventListener("message", on);
+    f.src = encodeURI(u.file) + "#lm-probe";
+    document.body.appendChild(f);
+  });
+}
+async function probeAll(){
+  if(probing) return; probing = true;
+  try {
+    for(;;){
+      const u = units.find(x => { const p = P[x.id]; return p && p.total == null && p.txt && !p.tried; });
+      if(!u) break;
+      const p = P[u.id]; p.tried = true; p.probing = true; render();
+      const r = PC.has(p.txt) ? PC.get(p.txt) : await probeOne(u, p.txt);
+      if(r) PC.set(p.txt, r);
+      p.probing = false;
+      if(r && r.total){ p.done = r.done; p.total = r.total; }
+      render();
+    }
+  } finally { probing = false; }
+}
+
+/* ---------- Anzeige ---------- */
+const dt = ts => new Date(ts).toLocaleString("de-DE", {day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit"}).replace(",", "");
+function stateOf(u){
+  const p = P[u.id];
+  if(!p) return {cls:"", chip:"offen", frac:"", pct:0, ts:null};
+  if(p.total == null) return {cls:"started", chip:"begonnen", frac:"", pct:null, ts:p.ts};
+  const pct = Math.round(100 * p.done / p.total);
+  return {cls: p.done >= p.total ? "done" : "started", chip: p.done >= p.total ? "✓ erledigt" : "begonnen", frac:`${p.done}/${p.total} Stationen`, pct, ts:p.ts};
+}
+function card(u){
+  const s = stateOf(u);
+  const bar = `<div class="bar${s.pct===100?" full":""}${s.pct==null?" unknown":""}" role="progressbar" aria-label="Fortschritt ${esc(u.nr)}" aria-valuemin="0" aria-valuemax="100"${s.pct!=null?` aria-valuenow="${s.pct}"`:""}><span style="width:${s.pct||0}%"></span></div>`;
+  const foot = s.ts ? `zuletzt ${dt(s.ts)}` : "noch nicht begonnen";
+  const hint = s.pct == null && P[u.id] && P[u.id].probing ? `<span class="small muted">Stand wird ermittelt …</span>` : "";
+  return `<a class="le ${s.cls}" href="${encodeURI(u.file)}" data-id="${esc(u.id||"")}">
+    <div class="le-k"><span class="le-no">LPE ${esc(u.nr)}</span><span class="chip ${s.cls}">${s.chip}</span></div>
+    <h3>${esc(u.title)}</h3>
+    <div class="le-bar">${bar}<span class="le-frac">${s.frac}</span></div>${hint}
+    <div class="le-foot"><span>${foot}</span><span class="go">Öffnen →</span></div>
+  </a>`;
+}
+function render(){
+  const list = units.slice().sort((a,b) => cmp(a.sort || a.nr, b.sort || b.nr));   /* sort: eigene Position (z. B. Wiederholung ans Kapitelende) */
+  const soon = DATA.soon.filter(s => !list.some(u => u.nr === s.nr || cmp(u.nr.replace(/[a-z]+$/i,""), s.nr) === 0 || u.nr.startsWith(s.nr + ".")));
+  const ch = DATA.chapters.map(c => {
+    const us = list.filter(u => u.nr.split(".")[0] === c.no), ss = soon.filter(s => s.nr.split(".")[0] === c.no);
+    if(!us.length && !ss.length) return "";
+    const items = [...us.map(u => ({nr:u.sort || u.nr, html:card(u)})), ...ss.map(s => ({nr:s.nr, html:`<div class="le soon" aria-disabled="true"><div class="le-k"><span class="le-no">LPE ${esc(s.nr)}</span><span class="chip">folgt</span></div><h3>${esc(s.title)}</h3></div>`}))].sort((a,b) => cmp(a.nr, b.nr));
+    const done = us.filter(u => stateOf(u).pct === 100).length;
+    return `<section class="chapter"><div class="chapter-h"><span class="no">${esc(c.no)}</span><h2>${esc(c.title)}</h2><span class="cnt">${us.length ? `${done} von ${us.length} erledigt` : "folgt"}</span></div><div class="units">${items.map(i => i.html).join("")}</div></section>`;
+  }).join("");
+  $("#chapters").innerHTML = ch;
+
+  const pcts = list.map(u => stateOf(u).pct || 0), sum = pcts.reduce((a,b) => a+b, 0);
+  const total = list.length ? Math.round(sum / list.length) : 0;
+  const done = list.filter(u => stateOf(u).pct === 100).length, started = list.filter(u => P[u.id]).length;
+  const tb = $("#total-bar"); tb.firstElementChild.style.width = total + "%"; tb.setAttribute("aria-valuenow", total); tb.classList.toggle("full", total === 100);
+  $("#total-pct").textContent = total + " %";
+  $("#total-sub").textContent = `${done} von ${list.length} Lerneinheiten erledigt · ${started} begonnen`;
+  const src = $("#src");
+  src.textContent = source || (Object.keys(P).length ? "Stand aus diesem Browser" : "Noch keine Speicherdateien gelesen");
+  src.className = "small " + (dir && perm === "granted" ? "ok" : "warn");
+  $("#refresh").hidden = !dir;
+  $("#pick").textContent = dir ? "Anderen Ordner wählen" : (FS_OK ? "Speicherordner wählen" : "Speicherdateien laden");
+  $("label[for=load]").hidden = !!dir || !FS_OK;
+}
+
+/* ---------- Start ---------- */
+(async function init(){
+  fromBrowser(); render();
+  if(!FS_OK){ gate("nofs"); return; }
+  const h = window.__lmTestDir || await IDB.get("ordner");
+  if(!h){ gate("new"); return; }
+  dir = h;
+  try { perm = await h.queryPermission({mode:"read"}); } catch(e){ perm = "prompt"; }
+  if(perm === "granted"){ await readDir(); render(); gate(null); probeAll(); }
+  else gate("resume");
+})();
+})();
+
+</script>
+<script>
+/* ============================================================
+   Rechtliches (alle Seiten): Hinweis-Banner „Keine Cookies“ + Links Impressum/Datenschutz
+   - Setzt KEINE Cookies. Die Bestätigung des Hinweises wird nur im Browser gemerkt
+     (localStorage "lm-hinweis"), technisch notwendig, wird nie übertragen.
+   - Banner nur, wenn die Seite von einem Webserver kommt (GitHub Pages), nicht bei lokaler Datei
+     und nicht im unsichtbaren Prüfmodus der Übersicht (#lm-probe / iframe).
+   - Links zeigen online relativ auf impressum.html / datenschutz.html, offline auf die Website.
+   ============================================================ */
+(function(){
+"use strict";
+if(window.__lmRecht) return; window.__lmRecht = true;
+const SITE = "https://lernplattform.github.io/Produktionstechnologie/";
+const ONLINE = /^https?:$/.test(location.protocol);
+const PROBE = /lm-probe/.test(location.hash) || window.top !== window;
+if(PROBE) return;
+const base = "";   /* Maschinenbau: Impressum/Datenschutz liegen immer im selben Ordner */
+const IMP = base + "impressum.html", DS = base + "datenschutz.html";
+const KEY = "lm-hinweis", VER = "1";
+
+const css = `
+.lm-recht{display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:8px}
+.lm-recht a{color:var(--muted, #56616B); text-decoration:underline}
+.lm-recht a:hover{color:var(--blue, #0C77B7)}
+.lm-foot-auto{max-width:1000px; margin:0 auto; padding:16px 16px 32px; border-top:1px solid var(--border, #E1E4E7); font-size:13px; color:var(--muted, #56616B); font-family:var(--sans, 'Segoe UI', Arial, sans-serif)}
+#lm-hinweis{position:fixed; left:12px; right:12px; bottom:12px; z-index:200; max-width:760px; margin:0 auto;
+  background:var(--surface, #fff); color:var(--ink, #1D1D1B); border:1px solid var(--border, #E1E4E7); border-left:6px solid var(--blue, #0C77B7);
+  border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.25); padding:14px 16px; display:flex; gap:12px 16px; align-items:center; flex-wrap:wrap;
+  font-family:var(--sans, 'Segoe UI', Arial, sans-serif); font-size:15px; line-height:1.45}
+#lm-hinweis p{margin:0; flex:1 1 320px}
+#lm-hinweis a{color:var(--blue, #0C77B7)}
+#lm-hinweis button{font:inherit; font-weight:600; border:0; border-radius:4px; padding:9px 18px; cursor:pointer; background:var(--blue, #0C77B7); color:var(--bg, #fff); flex:0 0 auto}
+#lm-hinweis button:focus-visible{outline:3px solid var(--rust, #0A5A8C); outline-offset:2px}
+@media print{ #lm-hinweis, .lm-recht, .lm-foot-auto{display:none !important} }
+`;
+
+function ready(fn){ if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn); else fn(); }
+ready(function(){
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+
+  /* Links im Fuß */
+  let foot = document.querySelector(".site-foot");
+  if(!foot){ foot = document.createElement("footer"); foot.className = "lm-foot-auto"; document.body.appendChild(foot); }
+  if(!foot.querySelector(".lm-recht")){
+    const nav = document.createElement("nav"); nav.className = "lm-recht"; nav.setAttribute("aria-label", "Rechtliches");
+    nav.innerHTML = `<a href="${IMP}">Impressum</a><a href="${DS}">Datenschutz</a><span>Diese Seite setzt keine Cookies.</span>`;
+    foot.appendChild(nav);
+  }
+
+  /* Hinweis-Banner (nur online, einmal je Browser) */
+  if(!ONLINE) return;
+  let seen = false; try { seen = localStorage.getItem(KEY) === VER; } catch(e){}
+  if(seen || document.getElementById("lm-hinweis")) return;
+  const b = document.createElement("div"); b.id = "lm-hinweis"; b.setAttribute("role", "region"); b.setAttribute("aria-label", "Hinweis zum Datenschutz");
+  b.innerHTML = `<p><b>Keine Cookies, kein Tracking.</b> Dein Lernstand wird nur auf deinem Gerät gespeichert (im Browser bzw. in deinem Speicherordner) und nie übertragen. Videos von YouTube werden erst geladen, wenn du sie anklickst. Mehr in der <a href="${DS}">Datenschutzerklärung</a> · <a href="${IMP}">Impressum</a></p><button type="button">Verstanden</button>`;
+  b.querySelector("button").addEventListener("click", () => { try { localStorage.setItem(KEY, VER); } catch(e){} b.remove(); });
+  document.body.appendChild(b);
+});
+})();
+
+</script>
