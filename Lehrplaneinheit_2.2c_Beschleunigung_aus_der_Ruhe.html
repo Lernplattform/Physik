@@ -506,6 +506,9 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
 svg.gfx.fluss, svg.gfx.vgit{width:100%; height:auto; display:block}
 @media (max-width:520px){ svg.gfx.big.fluss .lbl-s, svg.gfx.big.vgit .lbl-s{font-size:16px} }
 .vtab td .katex{font-size:1em}
+/* v0.6 (17.11.2026, LE 2.3b) senkrechte Szenen für freien Fall und Würfe (lib_kin_fall.js) */
+svg.gfx.fall{width:100%; height:auto; display:block}
+@media (max-width:520px){ svg.gfx.big.fall .lbl-s{font-size:16px} }
 /* LE 2.2c Beschleunigung aus der Ruhe: gemeinsame Stile in lib_kin.css; hier Tabelle der Messreihe (Parabel aus Messpunkten) */
 #pa-tabw table.vtab{margin-top:6px; font-size:14px}
 #pa-tabw table.vtab th{text-align:left; white-space:nowrap}
@@ -2469,6 +2472,132 @@ function mini(host, F, q, o={}){
   return d;
 }
 Object.assign(window.KIN, {mini});
+})();
+
+/* ============ Freier Fall und Würfe: Körper, senkrechte Szenen, Luftwiderstand (window.KIN.FALL, KIN.koerper, KIN.vszene …) ============
+   v0.1 (17.11.2026, LE 2.3b Freier Fall); gedacht auch für 2.3c–2.3e (Würfe).
+   KIN.FALL            Ortsfaktoren (g in m/s²) und Endgeschwindigkeiten vT (m/s) für den Fall in Luft,
+                       Luftwiderstand quadratisch: v(t) = vT·tanh(g·t/vT), s(t) = vT²/g · ln cosh(g·t/vT) (ohne Luft: v = g·t, s = ½·g·t²).
+   KIN.koerper(p, defs, typ, x, y, r, o)   fallender Körper (kugel, stein, feder, papier, papierK, apfel, ball, schirm, kapsel, schraube), Mitte (x, y), Größe r (px)
+   KIN.vszene(host, o) senkrechte Szene: Höhe in m nach oben (Y(m) → px), Boden, Himmel; o = {w, h, H (oben, m), U (unten, m, z. B. −30 beim Brunnen), T, B, aria}
+   KIN.baum / KIN.turm / KIN.brunnen / KIN.roehre / KIN.massband / KIN.ksachse  Bausteine für senkrechte Szenen. */
+(function(){
+"use strict";
+const {el, lin, rad, shadow} = LM.G;
+const add = (p, tag, a, k) => p.appendChild(el(tag, a, k));
+const T = (p, x, y, txt, cls="lbl-s", extra={}) => add(p, "text", Object.assign({x, y, class:cls}, extra), [txt]);
+
+/* ---------- Physik ---------- */
+const FALL = {
+  g:10,
+  ORT:{erde:9.81, aequator:9.78, pol:9.83, mond:1.62, mars:3.71, jupiter:24.8, sonne:274},
+  /* Endgeschwindigkeiten in Luft (Richtwerte): Stahlkugel Ø 3 cm, faustgroßer Stein, Apfel, Fußball, zerknülltes und glattes Blatt Papier, Vogelfeder, Fallschirmspringer */
+  VT:{kugel:75, stein:30, apfel:25, ball:22, papierK:6, papier:1.0, feder:0.6, mensch:55, schirm:5},
+  v(t, g, vT){ return vT ? vT*Math.tanh(g*t/vT) : g*t; },
+  s(t, g, vT){ if(!vT) return g*t*t/2; const x = g*t/vT; return vT*vT/g*(x > 20 ? x - Math.LN2 : Math.log(Math.cosh(x))); },
+  /* Zeit bis zur Fallstrecke s */
+  tS(s, g, vT){ if(!vT) return Math.sqrt(2*s/g); const z = s*g/(vT*vT), x = z > 20 ? z + Math.LN2 : Math.acosh(Math.exp(z)); return vT/g*x; },
+  /* Brunnen mit Schall: Tiefe h aus gehörter Zeit tg (Schallgeschwindigkeit c) */
+  hSchall(tg, g=10, c=340){ const a = 1/c, b = Math.sqrt(2/g), u = (-b + Math.sqrt(b*b + 4*a*tg))/(2*a); return u*u; }
+};
+
+/* ---------- Körper ---------- */
+const cache = new WeakMap();
+function paints(defs){
+  if(cache.has(defs)) return cache.get(defs);
+  const P = {
+    stahl:rad(defs, [[0,"#ffffff"],[.25,"#d9dee3"],[.7,"#7d8790"],[1,"#3b434a"]], .35, .3, .75),
+    stein:rad(defs, [[0,"#c9bfae"],[.55,"#8d8170"],[1,"#4f463b"]], .35, .3, .8),
+    apfel:rad(defs, [[0,"#ff9f8f"],[.35,"#e0483d"],[.8,"#a51d17"],[1,"#6a100c"]], .35, .3, .75),
+    ball:rad(defs, [[0,"#ffffff"],[.7,"#e4e8ec"],[1,"#9aa3ab"]], .35, .3, .8),
+    papier:lin(defs, [[0,"#ffffff"],[1,"#cfd6dc"]], 0, 0, 1, 1),
+    feder:lin(defs, [[0,"#ff8a7f"],[.5,"#e0483d"],[1,"#9e1c15"]], 0, 0, 1, 0),
+    schirm:lin(defs, [[0,"#ffd27a"],[.5,"#f2a516"],[1,"#c46f00"]], 0, 0, 1, 0),
+    kapsel:lin(defs, [[0,"#5c656d"],[.45,"#e4e9ed"],[1,"#4a535c"]], 0, 0, 1, 0),
+    sh:shadow(defs, 1.5, 1.5, .35)
+  };
+  cache.set(defs, P); return P;
+}
+function koerper(p, defs, typ, x, y, r=8, o={}){
+  const P = paints(defs), g = add(p, "g", {transform:`translate(${x},${y})${o.rot ? ` rotate(${o.rot})` : ""}`, filter:P.sh});
+  if(typ === "kugel") add(g, "circle", {r, fill:P.stahl, stroke:"#3b434a", "stroke-width":.6});
+  else if(typ === "stein") add(g, "path", {d:`M${-r},${-.2*r} L${-.6*r},${-.85*r} L${.25*r},${-r} L${r},${-.35*r} L${.85*r},${.55*r} L${.1*r},${r} L${-.75*r},${.7*r} Z`, fill:P.stein, stroke:"#4f463b", "stroke-width":.7});
+  else if(typ === "apfel"){ add(g, "path", {d:`M0,${-.62*r} C${.55*r},${-1.15*r} ${1.2*r},${-.55*r} ${r},${.25*r} C${.85*r},${.95*r} ${.3*r},${1.05*r} 0,${.85*r} C${-.3*r},${1.05*r} ${-.85*r},${.95*r} ${-r},${.25*r} C${-1.2*r},${-.55*r} ${-.55*r},${-1.15*r} 0,${-.62*r} Z`, fill:P.apfel, stroke:"#6a100c", "stroke-width":.6});
+    add(g, "path", {d:`M0,${-.6*r} q${.1*r},${-.35*r} ${.3*r},${-.55*r}`, style:"fill:none;stroke:#5b3a1a;stroke-width:1.6"}); add(g, "path", {d:`M${.15*r},${-.85*r} q${.45*r},${-.35*r} ${.75*r},${-.1*r} q${-.4*r},${.25*r} ${-.75*r},${.1*r} z`, style:"fill:#3d8b3d"}); }
+  else if(typ === "ball"){ add(g, "circle", {r, fill:P.ball, stroke:"#4a535c", "stroke-width":.8});
+    const pg = k => { let d = ""; for(let i=0;i<5;i++){ const a = (-90 + 72*i)*Math.PI/180; d += (i ? "L" : "M") + (k*Math.cos(a)).toFixed(1) + "," + (k*Math.sin(a)).toFixed(1); } return d + "Z"; };
+    add(g, "path", {d:pg(.38*r), fill:"#2b3138"}); [-90, -18, 54, 126, 198].forEach(w => { const a = w*Math.PI/180; add(g, "line", {x1:.38*r*Math.cos(a), y1:.38*r*Math.sin(a), x2:.95*r*Math.cos(a), y2:.95*r*Math.sin(a), stroke:"#2b3138", "stroke-width":1}); }); }
+  else if(typ === "papier") add(g, "rect", {x:-1.3*r, y:-.18*r, width:2.6*r, height:.36*r, rx:1, fill:P.papier, stroke:"#7d8790", "stroke-width":.8, transform:"rotate(-12)"});
+  else if(typ === "papierK") add(g, "path", {d:`M${-r},0 L${-.7*r},${-.75*r} L${-.1*r},${-.55*r} L${.35*r},${-r} L${.9*r},${-.45*r} L${.75*r},${.2*r} L${r},${.6*r} L${.25*r},${.95*r} L${-.35*r},${.7*r} L${-.85*r},${.8*r} Z M${-.4*r},${-.2*r} L${.2*r},${.1*r} L${.5*r},${-.3*r} M${-.2*r},${.5*r} L${.3*r},${.35*r}`, fill:P.papier, stroke:"#7d8790", "stroke-width":.8});
+  else if(typ === "feder"){ add(g, "path", {d:`M${-1.6*r},${.5*r} C${-.6*r},${-.9*r} ${.8*r},${-.9*r} ${1.6*r},${-.5*r} C${.8*r},${.15*r} ${-.4*r},${.75*r} ${-1.6*r},${.5*r} Z`, fill:P.feder, stroke:"#7a140f", "stroke-width":.6});
+    add(g, "path", {d:`M${-1.9*r},${.7*r} Q${0},${-.1*r} ${1.6*r},${-.5*r}`, style:"fill:none;stroke:#5a0d09;stroke-width:1.1"}); }
+  else if(typ === "schirm"){ add(g, "path", {d:`M${-1.6*r},${-.6*r} Q0,${-2.6*r} ${1.6*r},${-.6*r} Q${.8*r},${-1.0*r} 0,${-.75*r} Q${-.8*r},${-1.0*r} ${-1.6*r},${-.6*r} Z`, fill:P.schirm, stroke:"#8a4f00", "stroke-width":.8});
+    [-1.6, -.55, .55, 1.6].forEach(k => add(g, "line", {x1:k*r, y1:-.65*r, x2:0, y2:.55*r, style:"stroke:#5c656d;stroke-width:.7"}));
+    add(g, "rect", {x:-.45*r, y:.45*r, width:.9*r, height:.7*r, rx:1.5, fill:"#8a6236", stroke:"#5c3d1e", "stroke-width":.7}); }
+  else if(typ === "kapsel"){ add(g, "rect", {x:-.55*r, y:-1.3*r, width:1.1*r, height:2.6*r, rx:.5*r, fill:P.kapsel, stroke:"#3f474f", "stroke-width":.8}); add(g, "line", {x1:-.55*r, x2:.55*r, y1:-.4*r, y2:-.4*r, style:"stroke:#3f474f;stroke-width:.8"}); }
+  else if(typ === "schraube"){ add(g, "rect", {x:-.7*r, y:-r, width:1.4*r, height:.45*r, rx:1, fill:P.kapsel, stroke:"#3f474f", "stroke-width":.7}); add(g, "rect", {x:-.28*r, y:-.55*r, width:.56*r, height:1.55*r, fill:P.kapsel, stroke:"#3f474f", "stroke-width":.7}); }
+  else if(typ === "person"){ add(g, "circle", {cx:0, cy:-1.25*r, r:.38*r, fill:"#e9b48a", stroke:"#8a5a3a", "stroke-width":.6});
+    add(g, "rect", {x:-.36*r, y:-.85*r, width:.72*r, height:1.15*r, rx:.3*r, fill:"#2f7fbf", stroke:"#0b2f4c", "stroke-width":.6});
+    add(g, "path", {d:`M${-.2*r},${.25*r} L${-.25*r},${1.25*r} M${.2*r},${.25*r} L${.25*r},${1.25*r}`, style:"stroke:#e9b48a;stroke-width:3;stroke-linecap:round"});
+    add(g, "path", {d:`M${-.36*r},${-.7*r} L${-.6*r},${.05*r} M${.36*r},${-.7*r} L${.6*r},${.05*r}`, style:"stroke:#e9b48a;stroke-width:2.6;stroke-linecap:round"}); }
+  return g;
+}
+
+/* ---------- senkrechte Szene ---------- */
+function vszene(host, o){
+  host.innerHTML = "";
+  const w = o.w || 420, h = o.h || 300, Tp = o.T != null ? o.T : 22, B = o.B != null ? o.B : h - 26, H = o.H, U = o.U || 0;
+  const svg = el("svg", {viewBox:`0 0 ${w} ${h}`, role:"img", "aria-label":o.aria || "", class:"gfx big fall"});
+  const defs = el("defs"); svg.appendChild(defs); host.appendChild(svg);
+  const k = (B - Tp)/(H - U), Y = m => B - (m - U)*k, yb = Y(0);
+  add(svg, "rect", {x:0, y:0, width:w, height:yb, fill:lin(defs, [[0,"#cfe6f7"],[1,"#eef6fc"]], 0, 0, 0, 1), class:"himmel"});
+  const g0 = add(svg, "g", {});
+  add(g0, "rect", {x:0, y:yb, width:w, height:h - yb, fill:lin(defs, [[0,"#8a6a45"],[1,"#5c4430"]], 0, 0, 0, 1)});
+  add(g0, "rect", {x:0, y:yb - 3, width:w, height:6, fill:"#5f9e4a"});
+  const layer = () => add(svg, "g", {});
+  return {svg, defs, Y, k, yb, w, h, layer, g0};
+}
+function baum(p, defs, x, yb, hp){
+  add(p, "rect", {x:x - .05*hp, y:yb - .55*hp, width:.1*hp, height:.55*hp, rx:2, fill:lin(defs, [[0,"#5b3a1a"],[.5,"#8a5a2b"],[1,"#4a2e14"]], 0, 0, 1, 0)});
+  const kr = rad(defs, [[0,"#8fd36a"],[.6,"#3d8b3d"],[1,"#1f5a24"]], .4, .35, .75);
+  [[0, -.72, .32], [-.22, -.6, .24], [.22, -.6, .24], [0, -.88, .22]].forEach(([dx, dy, rr]) => add(p, "circle", {cx:x + dx*hp, cy:yb + dy*hp, r:rr*hp, fill:kr}));
+}
+/* Sprungturm: Plattformen in den Höhen hs (px-Liste), Breite b */
+function turm(p, defs, x, yb, yTop, plats){
+  add(p, "rect", {x:x - 16, y:yTop, width:32, height:yb - yTop, fill:lin(defs, [[0,"#9aa3ab"],[.5,"#dfe4e8"],[1,"#7d8790"]], 0, 0, 1, 0), stroke:"#5c656d", "stroke-width":.8});
+  plats.forEach(([yp, len]) => { add(p, "rect", {x:x + 14, y:yp - 4, width:len, height:6, rx:1.5, fill:"#3f6f9e", stroke:"#1d3f5e", "stroke-width":.6}); add(p, "line", {x1:x + 14, x2:x + 14 + len, y1:yp - 12, y2:yp - 12, style:"stroke:#5c656d;stroke-width:1.2"}); });
+}
+/* Brunnenschacht im Schnitt: Rand bei yb, Wasser bei yw, Breite bw */
+function brunnen(p, defs, x, yb, yw, bw){
+  const st = lin(defs, [[0,"#7d7466"],[.5,"#b3a996"],[1,"#6b6356"]], 0, 0, 1, 0);
+  add(p, "rect", {x:x - bw/2 - 14, y:yb - 16, width:14, height:yw - yb + 26, fill:st, stroke:"#4f463b", "stroke-width":.7});
+  add(p, "rect", {x:x + bw/2, y:yb - 16, width:14, height:yw - yb + 26, fill:st, stroke:"#4f463b", "stroke-width":.7});
+  add(p, "rect", {x:x - bw/2, y:yb, width:bw, height:yw - yb, fill:"#3b3128", opacity:.35});
+  add(p, "rect", {x:x - bw/2, y:yw, width:bw, height:12, fill:lin(defs, [[0,"#5aa0d8"],[1,"#1d5f93"]], 0, 0, 0, 1)});
+}
+/* Glasröhre (Fallröhre) von yTop bis yBot, Breite rw; vakuum: Luft abgepumpt */
+function roehre(p, defs, x, yTop, yBot, rw, vakuum){
+  add(p, "rect", {x:x - rw/2, y:yTop, width:rw, height:yBot - yTop, rx:rw/2, fill:vakuum ? "rgba(140,170,200,.10)" : "rgba(160,200,235,.28)", stroke:"#7d8f9e", "stroke-width":1.5});
+  add(p, "rect", {x:x - rw/2 + 4, y:yTop + 8, width:4, height:yBot - yTop - 16, rx:2, fill:"#ffffff", opacity:.55});
+  add(p, "rect", {x:x - rw/2 - 4, y:yTop - 8, width:rw + 8, height:10, rx:2, fill:"#5c656d"}); add(p, "rect", {x:x - rw/2 - 4, y:yBot - 2, width:rw + 8, height:10, rx:2, fill:"#5c656d"});
+}
+/* Maßband senkrecht an x von m1 bis m2 (Höhen in m), Striche alle dm, Zahl alle dl */
+function massband(p, Y, x, m1, m2, dm, dl, fz){
+  add(p, "line", {x1:x, x2:x, y1:Y(m1), y2:Y(m2), style:"stroke:var(--ink);stroke-width:1.3"});
+  for(let m = m1; m <= m2 + 1e-9; m += dm){ const big = Math.abs(m/dl - Math.round(m/dl)) < 1e-6;
+    add(p, "line", {x1:x, x2:x + (big ? 9 : 5), y1:Y(m), y2:Y(m), style:"stroke:var(--ink);stroke-width:1.2"});
+    if(big) T(p, x - 5, Y(m) + 5, fz ? fz(m) : String(Math.round(m)).replace("-", "−"), "lbl-s", {"text-anchor":"end"}); }
+}
+/* Koordinatenachse s senkrecht: Ursprung bei y0, Pfeil nach unten (dir = 1) oder oben (dir = −1), Länge len px */
+function ksachse(p, x, y0, len, dir, lab, col="var(--ink)"){
+  const y2 = y0 + dir*len;
+  add(p, "line", {x1:x, x2:x, y1:y0, y2:y2 - dir*7, style:`stroke:${col};stroke-width:2`});
+  add(p, "path", {d:`M${x},${y2} l-5,${-dir*10} h10 z`, style:`fill:${col}`});
+  add(p, "line", {x1:x - 7, x2:x + 7, y1:y0, y2:y0, style:`stroke:${col};stroke-width:2`});
+  T(p, x + 8, y2 + (dir > 0 ? -2 : 12), lab, "lbl", {style:`fill:${col}`});
+  T(p, x - 9, y0 + 5, "0", "lbl-s", {"text-anchor":"end", style:`fill:${col};font-weight:700`});
+}
+Object.assign(window.KIN = window.KIN || {}, {FALL, koerper, vszene, baum, turm, brunnen, roehre, massband, ksachse});
 })();
 
 /* ============ GPS-Fahrt durch Karlsruhe (window.KIN.gps) ============
