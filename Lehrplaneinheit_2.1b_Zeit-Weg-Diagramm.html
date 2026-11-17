@@ -487,6 +487,11 @@ svg.gfx.sdiag{width:100%; height:auto; display:block; overflow:hidden}
 .legend i{display:inline-block; width:22px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle}
 .ctrl label.chk{flex-direction:row; gap:8px; align-items:center; font-size:15px}
 .ctrl select{font:inherit; font-size:15px; padding:6px 8px; max-width:100%; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--ink)}
+/* v0.2 (17.11.2026) Straße in Draufsicht (lib_kin_ks.js), LE 2.1d */
+svg.gfx.strasse{width:100%; height:auto; display:block}
+@media (max-width:520px){ svg.gfx.big.strasse .lbl-s{font-size:17px} }
+.ctrl .btn.secondary[aria-pressed="true"]{background:var(--blue); color:var(--bg); border-color:var(--blue)}
+.figure > div > svg.gfx.strasse{max-width:560px}
 /* LE 2.1b Zeit-Weg-Diagramm: gemeinsame Stile in lib_kin.css */
 </style>
 <div class="site-head">
@@ -2156,6 +2161,7 @@ const PAINT = {
   rot:  [[0,"#7d1410"],[.35,"#e0483d"],[.55,"#ff8a7f"],[.75,"#c1302a"],[1,"#6a100c"]],
   blau: [[0,"#0d3b5e"],[.35,"#2f7fbf"],[.55,"#8cc3ea"],[.75,"#1d5f93"],[1,"#0b2f4c"]],
   gelb: [[0,"#8a5a00"],[.35,"#f2b01e"],[.55,"#ffe08a"],[.75,"#d99a0b"],[1,"#7a4f00"]],
+  gruen: [[0,"#0b3a20"],[.35,"#2f9e5b"],[.55,"#8fdcae"],[.75,"#1f7a44"],[1,"#0b3a20"]],   // v0.2 (17.11.2026) für LE 2.1d
   grau: [[0,"#4a535c"],[.35,"#aeb7bf"],[.55,"#e4e9ed"],[.75,"#8c959e"],[1,"#3f474f"]],
   glas: [[0,"#b9dcf2",.95],[.5,"#5d8fb3",.95],[1,"#2c4f6b",.95]],
   reifen: [[0,"#555"],[.6,"#222"],[1,"#000"]],
@@ -2387,6 +2393,127 @@ function gps(host, ctrl, o){
   return { lage, uhr };
 }
 window.KIN = window.KIN || {}; window.KIN.gps = gps; window.KIN.GPS_S = GPS_S; window.KIN.gpsLage = lage;
+})();
+
+/* ============ Straße in Draufsicht mit Koordinatenachse (window.KIN.strasse, KIN.fz) ============
+   v0.1 (17.11.2026) für LE 2.1d Gleichförmige Bewegung (Video „Koordinatensystem I“) und Übungen 2.1; später auch 2.2f.
+   KIN.strasse(host, o) zeichnet eine gerade Straße (zwei Fahrstreifen) mit Landmarken und Maßband und gibt zurück:
+     {svg, defs, X(s), fzLayer, setFz(liste)}
+     o = {w (viewBox-Breite, Standard 420), sMin, sMax (sichtbarer Bereich in m), tick (Teilstrich), lab (Beschriftung alle …),
+          zahlen (false: Maßband nur mit „0“ beschriften), gleis (1|2: Gleise statt Straße; Fahrzeug mit y: 77 = eingleisig), marks:[{s, typ:"ortsschild"|"baum"|"ampel"|"haus"|"tempo"|"bahnhof", txt}], nullpunkt (Ort des Ursprungs, Standard 0),
+          richtung (+1: positive Achse nach rechts, −1: nach links), aria}
+   Beschriftung des Maßbands: Koordinate (Ort − nullpunkt)·richtung, also der Abstand zum gewählten Ursprung mit Vorzeichen.
+   KIN.fz(p, defs, typ, x, y, dir, farbe, nr) zeichnet ein Fahrzeug in Draufsicht: typ "auto"|"lkw"|"motorrad"|"zug"|"rad",
+     dir = +1 fährt nach rechts, −1 nach links; nr = optionale Nummer im Kreis. Fahrzeuge sind nicht maßstäblich (Hinweis im Text).
+   Fahrstreifen: unten (y = KIN.SPUR.r) fährt man nach rechts, oben (KIN.SPUR.l) nach links (Rechtsverkehr). */
+(function(){
+"use strict";
+const {el, lin} = LM.G;
+const add = (p, tag, a, k) => p.appendChild(el(tag, a, k));
+const T = (p, x, y, txt, cls="lbl-s", extra={}) => add(p, "text", Object.assign({x, y, class:cls}, extra), [txt]);
+const SPUR = {l:66, r:88};                     // Mitte des oberen bzw. unteren Fahrstreifens
+
+function fz(p, defs, typ, x, y, dir=1, farbe="blau", nr){
+  const sc = {lkw:1.2, motorrad:1.7, rad:1.6, zug:1.1}[typ] || 1.3;                       // Fahrzeuge vergrößert (nicht maßstäblich)
+  const P = KIN.paints(defs), g = add(p, "g", {transform:`translate(${x},${y}) scale(${dir*sc},${sc})`, filter:P.sh});
+  const glas = P.glas;
+  if(typ === "lkw"){
+    add(g, "rect", {x:-26, y:-8, width:36, height:16, rx:1.5, fill:P.grau, stroke:"#3f474f", "stroke-width":.7});
+    add(g, "rect", {x:11, y:-7.5, width:13, height:15, rx:3, fill:P[farbe] || P.blau, stroke:"#0b2f4c", "stroke-width":.7});
+    add(g, "rect", {x:19, y:-6, width:3.5, height:12, rx:1, fill:glas});
+  } else if(typ === "motorrad"){
+    add(g, "rect", {x:-8, y:-2.2, width:16, height:4.4, rx:2.2, fill:"#2a2f35"});
+    add(g, "ellipse", {cx:0, cy:0, rx:5, ry:3.2, fill:P[farbe] || P.rot, stroke:"#3a1a10", "stroke-width":.5});
+    add(g, "circle", {cx:-2, cy:0, r:3, fill:"#30363c", stroke:"#d0d6db", "stroke-width":.8});      // Helm
+    add(g, "line", {x1:4, y1:-4.5, x2:4, y2:4.5, stroke:"#30363c", "stroke-width":1.4, "stroke-linecap":"round"});
+  } else if(typ === "zug"){
+    add(g, "rect", {x:-30, y:-7, width:60, height:14, rx:4, fill:P[farbe] || P.rot, stroke:"#3a1a10", "stroke-width":.7});
+    add(g, "rect", {x:22, y:-5.5, width:6, height:11, rx:2, fill:glas});
+    [-14, 2].forEach(xx => add(g, "line", {x1:xx, y1:-7, x2:xx, y2:7, stroke:"#00000055", "stroke-width":1}));
+  } else if(typ === "rad"){
+    add(g, "rect", {x:-7, y:-1.2, width:14, height:2.4, rx:1.2, fill:"#2a2f35"});
+    add(g, "circle", {cx:-1, cy:0, r:2.8, fill:P[farbe] || P.gelb, stroke:"#7a4f00", "stroke-width":.5});
+  } else {
+    add(g, "rect", {x:-13, y:-6.5, width:26, height:13, rx:4, fill:P[farbe] || P.blau, stroke:"#0b2f4c", "stroke-width":.7});
+    add(g, "path", {d:"M3,-5 L7.5,-5.5 Q9,0 7.5,5.5 L3,5 Z", fill:glas});
+    add(g, "path", {d:"M-6,-5 L-9.5,-5 Q-10.5,0 -9.5,5 L-6,5 Z", fill:glas});
+    add(g, "rect", {x:11, y:-5.5, width:2, height:2.4, rx:.6, fill:"#fff6c8"}); add(g, "rect", {x:11, y:3.1, width:2, height:2.4, rx:.6, fill:"#fff6c8"});
+  }
+  if(nr != null){ const q = add(p, "g", {}), xn = x - dir*sc*(typ === "lkw" ? 34 : typ === "zug" ? 40 : 20);      // Nummer hinter dem Fahrzeug
+    add(q, "circle", {cx:xn, cy:y, r:8.5, style:"fill:var(--surface);stroke:var(--ink);stroke-width:1.2"});
+    T(q, xn, y + 4.5, String(nr), "lbl-s", {"text-anchor":"middle", style:"font-weight:600"}); }
+  return g;
+}
+
+/* Landmarken (Seitenansicht neben der Straße, Fuß bei y = 52) */
+function mark(p, defs, typ, x, txt){
+  const P = KIN.paints(defs), g = add(p, "g", {});
+  if(typ === "ortsschild"){
+    add(g, "line", {x1:x, y1:30, x2:x, y2:52, style:"stroke:#6b7177;stroke-width:2"});
+    add(g, "rect", {x:x-15, y:12, width:30, height:19, rx:1.5, fill:"#f6d21f", stroke:"#222", "stroke-width":1});
+    add(g, "line", {x1:x-12, y1:21.5, x2:x+12, y2:21.5, stroke:"#222", "stroke-width":.8});
+    add(g, "line", {x1:x-12, y1:28, x2:x+12, y2:25, stroke:"#c0302a", "stroke-width":1.6});
+  } else if(typ === "baum"){
+    add(g, "rect", {x:x-2.5, y:34, width:5, height:18, fill:"#7a5230"});
+    add(g, "circle", {cx:x, cy:26, r:12, fill:lin(defs, [[0,"#7cc46a"],[1,"#2f7a32"]], 0,0,0,1)});
+    add(g, "circle", {cx:x-8, cy:31, r:7, fill:"#3f8e3c"}); add(g, "circle", {cx:x+8, cy:30, r:7.5, fill:"#4d9c45"});
+  } else if(typ === "ampel"){
+    add(g, "line", {x1:x, y1:40, x2:x, y2:52, style:"stroke:#6b7177;stroke-width:2"});
+    add(g, "rect", {x:x-6, y:8, width:12, height:32, rx:2, fill:"#30363c"});
+    [["#5a1a16",14],["#5a4a10",24],["#3bd16f",34]].forEach(([c, yy]) => add(g, "circle", {cx:x, cy:yy, r:3.6, fill:c}));
+  } else if(typ === "haus"){
+    add(g, "rect", {x:x-14, y:30, width:28, height:22, fill:P.grau, stroke:"#3f474f", "stroke-width":.7});
+    add(g, "path", {d:`M${x-17},31 L${x},16 L${x+17},31 Z`, fill:"#c0302a"});
+    add(g, "rect", {x:x+3, y:40, width:6, height:12, fill:"#5c656d"});
+  } else if(typ === "tempo"){
+    add(g, "line", {x1:x, y1:36, x2:x, y2:52, style:"stroke:#6b7177;stroke-width:2"});
+    add(g, "circle", {cx:x, cy:24, r:12, fill:"#fff", stroke:"#d22", "stroke-width":3.5});
+    T(g, x, 28.5, txt || "100", "lbl-s", {"text-anchor":"middle", style:"fill:#111;font-weight:600"});
+  } else if(typ === "bahnhof"){
+    add(g, "rect", {x:x-16, y:30, width:32, height:22, fill:"#d9c7a3", stroke:"#6e4e26", "stroke-width":.7});
+    add(g, "path", {d:`M${x-19},31 L${x},20 L${x+19},31 Z`, fill:"#5c656d"});
+  }
+  if(txt && typ !== "tempo") T(g, x, 8, txt, "lbl-s", {"text-anchor":"middle"});
+  return g;
+}
+
+function strasse(host, o){
+  const W = o.w || 420, L = 16, R = W - 16, H = o.h || 150;
+  const {svg, defs} = LM.G.svgRoot(host, W, H, o.aria || "Straße mit Koordinatenachse"); svg.classList.add("big", "strasse");
+  const X = s => L + (R - L)*(s - o.sMin)/(o.sMax - o.sMin);
+  const P = KIN.paints(defs), n0 = o.nullpunkt || 0, ri = o.richtung || 1;
+  const gm = add(svg, "g", {});
+  (o.marks || []).forEach(m => mark(gm, defs, m.typ, X(m.s), m.txt));
+  if(o.gleis){                                                                  // v0.2: Gleise statt Straße (o.gleis = 1 eingleisig, 2 zweigleisig)
+    add(svg, "rect", {x:0, y:56, width:W, height:42, fill:"#9a9182"});
+    (o.gleis === 1 ? [77] : [SPUR.l, SPUR.r]).forEach(y => { for(let x=4;x<W;x+=9) add(svg, "rect", {x, y:y-8, width:4, height:16, fill:"#6e4e26"});
+      [y-5, y+5].forEach(yy => add(svg, "line", {x1:0, x2:W, y1:yy, y2:yy, style:"stroke:#4a535c;stroke-width:1.6"})); });
+  } else {
+    add(svg, "rect", {x:0, y:56, width:W, height:42, fill:P.asphalt});
+    add(svg, "line", {x1:0, x2:W, y1:57.5, y2:57.5, style:"stroke:#f4f4f4;stroke-width:1.2"}); add(svg, "line", {x1:0, x2:W, y1:96.5, y2:96.5, style:"stroke:#f4f4f4;stroke-width:1.2"});
+    add(svg, "line", {x1:0, x2:W, y1:77, y2:77, style:"stroke:#f4f4f4;stroke-width:1.4;stroke-dasharray:10 8"});
+  }
+  /* Maßband: Teilstriche, Beschriftung relativ zum gewählten Ursprung */
+  const gb = add(svg, "g", {}), yb = 104, step = o.tick || 50, lab = o.lab || 100;
+  add(gb, "line", {x1:L, x2:R, y1:yb, y2:yb, style:"stroke:var(--ink);stroke-width:1.2"});
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
+  for(let s = Math.ceil(o.sMin/step)*step; s <= o.sMax + 1e-9; s += step){
+    const k = (s - n0)*ri, big = near(k/lab, Math.round(k/lab));
+    add(gb, "line", {x1:X(s), x2:X(s), y1:yb, y2:yb + (big ? 7 : 4), style:"stroke:var(--ink);stroke-width:1"});
+    if(big && (o.zahlen !== false || near(k, 0)) && X(s) > L + 6 && X(s) < R - 6) T(gb, X(s), yb + 22, String(Math.round(k)).replace("-", "−"), "lbl-s", {"text-anchor":"middle", style:near(k, 0) ? "font-weight:700" : ""});
+  }
+  /* Ursprung und positive Richtung */
+  const x0 = X(n0);
+  if(x0 >= L && x0 <= R){ add(gb, "line", {x1:x0, x2:x0, y1:56, y2:yb + 8, style:"stroke:var(--err);stroke-width:2;stroke-dasharray:4 3"}); }
+  const xa = ri > 0 ? R - 46 : L + 46, xb = ri > 0 ? R - 2 : L + 2;
+  KIN.arrow(gb, xa, yb + 34, xb, yb + 34, "var(--err)", 2);
+  T(gb, ri > 0 ? xa - 6 : xa + 6, yb + 39, o.achse || "s in m", "lbl-s", {"text-anchor":ri > 0 ? "end" : "start", style:"fill:var(--err)"});
+  const fzLayer = add(svg, "g", {});
+  return {svg, defs, X, fzLayer, W, H,
+    setFz(list){ while(fzLayer.firstChild) fzLayer.removeChild(fzLayer.firstChild);
+      list.forEach(f => { const x = X(f.s); if(x < -40 || x > W + 40) return; fz(fzLayer, defs, f.typ, x, f.y || (f.dir > 0 ? SPUR.r : SPUR.l), f.dir, f.farbe, f.nr); }); }};
+}
+Object.assign(window.KIN = window.KIN || {}, {strasse, fz, SPUR});
 })();
 
 /* ============ Grafiken und Simulationen LE 2.1b Zeit-Weg-Diagramm (v0.1, 17.11.2026) ============
