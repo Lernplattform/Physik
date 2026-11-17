@@ -2480,7 +2480,9 @@ Object.assign(window.KIN, {mini});
                        Luftwiderstand quadratisch: v(t) = vT·tanh(g·t/vT), s(t) = vT²/g · ln cosh(g·t/vT) (ohne Luft: v = g·t, s = ½·g·t²).
    KIN.koerper(p, defs, typ, x, y, r, o)   fallender Körper (kugel, stein, feder, papier, papierK, apfel, ball, schirm, kapsel, schraube), Mitte (x, y), Größe r (px)
    KIN.vszene(host, o) senkrechte Szene: Höhe in m nach oben (Y(m) → px), Boden, Himmel; o = {w, h, H (oben, m), U (unten, m, z. B. −30 beim Brunnen), T, B, aria}
-   KIN.baum / KIN.turm / KIN.brunnen / KIN.roehre / KIN.massband / KIN.ksachse  Bausteine für senkrechte Szenen. */
+   KIN.baum / KIN.turm / KIN.brunnen / KIN.roehre / KIN.massband / KIN.ksachse  Bausteine für senkrechte Szenen.
+   v0.2 (17.11.2026, LE 2.3c Senkrechter Wurf): KIN.WURF (KS am Boden, nach oben: h(t) = h0 + v0·t − ½·g·t², v(t) = v0 − g·t; tS, hMax, tF, tW, vA),
+   KIN.bruecke (Brücke mit Geländer und Pfeiler), Körpertyp „astronaut“ (Raumanzug, Helm mit Goldvisier, Rückentornister). */
 (function(){
 "use strict";
 const {el, lin, rad, shadow} = LM.G;
@@ -2499,6 +2501,17 @@ const FALL = {
   tS(s, g, vT){ if(!vT) return Math.sqrt(2*s/g); const z = s*g/(vT*vT), x = z > 20 ? z + Math.LN2 : Math.acosh(Math.exp(z)); return vT/g*x; },
   /* Brunnen mit Schall: Tiefe h aus gehörter Zeit tg (Schallgeschwindigkeit c) */
   hSchall(tg, g=10, c=340){ const a = 1/c, b = Math.sqrt(2/g), u = (-b + Math.sqrt(b*b + 4*a*tg))/(2*a); return u*u; }
+};
+
+/* v0.2 senkrechter Wurf, KS mit Ursprung am Boden, nach oben positiv (v0 > 0: nach oben, v0 < 0: nach unten, v0 = 0: freier Fall) */
+const WURF = {
+  h(t, h0, v0, g=10){ return h0 + v0*t - g*t*t/2; },
+  v(t, v0, g=10){ return v0 - g*t; },
+  tS(v0, g=10){ return Math.max(0, v0)/g; },                                  // Steigzeit (0 beim Wurf nach unten)
+  hMax(h0, v0, g=10){ return h0 + Math.max(0, v0)**2/(2*g); },                 // Scheitelhöhe (= h0 beim Wurf nach unten)
+  tF(h0, v0, g=10){ return Math.sqrt(2*WURF.hMax(h0, v0, g)/g); },             // Fallzeit ab Scheitel (nur für v0 ≥ 0)
+  tW(h0, v0, g=10){ return (v0 + Math.sqrt(v0*v0 + 2*g*h0))/g; },              // Wurfdauer bis h = 0 (positive Lösung, alle v0)
+  vA(h0, v0, g=10){ return -Math.sqrt(v0*v0 + 2*g*h0); }                       // Aufprallgeschwindigkeit (negativ = nach unten)
 };
 
 /* ---------- Körper ---------- */
@@ -2540,6 +2553,16 @@ function koerper(p, defs, typ, x, y, r=8, o={}){
     add(g, "rect", {x:-.36*r, y:-.85*r, width:.72*r, height:1.15*r, rx:.3*r, fill:"#2f7fbf", stroke:"#0b2f4c", "stroke-width":.6});
     add(g, "path", {d:`M${-.2*r},${.25*r} L${-.25*r},${1.25*r} M${.2*r},${.25*r} L${.25*r},${1.25*r}`, style:"stroke:#e9b48a;stroke-width:3;stroke-linecap:round"});
     add(g, "path", {d:`M${-.36*r},${-.7*r} L${-.6*r},${.05*r} M${.36*r},${-.7*r} L${.6*r},${.05*r}`, style:"stroke:#e9b48a;stroke-width:2.6;stroke-linecap:round"}); }
+  else if(typ === "astronaut"){ /* v0.2: Mitte des Rumpfes bei (0,0); Oberkante Helm bei −1,72·r, Stiefel bei +1,45·r */
+    add(g, "rect", {x:-.62*r, y:-1.0*r, width:.4*r, height:1.0*r, rx:.08*r, fill:"#c9ced3", stroke:"#5c656d", "stroke-width":.6});
+    add(g, "path", {d:`M${-.2*r},${.35*r} L${-.3*r},${1.3*r} M${.2*r},${.35*r} L${.3*r},${1.3*r}`, style:"stroke:#eef1f4;stroke-width:" + (.3*r).toFixed(1) + ";stroke-linecap:round"});
+    add(g, "path", {d:`M${-.2*r},${.35*r} L${-.3*r},${1.3*r} M${.2*r},${.35*r} L${.3*r},${1.3*r}`, style:"fill:none;stroke:#8c959e;stroke-width:.6;stroke-dasharray:1 3"});
+    add(g, "rect", {x:-.48*r, y:1.22*r, width:.36*r, height:.24*r, rx:.06*r, fill:"#5c656d"}); add(g, "rect", {x:.12*r, y:1.22*r, width:.36*r, height:.24*r, rx:.06*r, fill:"#5c656d"});
+    add(g, "rect", {x:-.4*r, y:-.95*r, width:.8*r, height:1.4*r, rx:.25*r, fill:"#f2f4f6", stroke:"#8c959e", "stroke-width":.7});
+    add(g, "rect", {x:-.18*r, y:-.6*r, width:.36*r, height:.26*r, rx:.04*r, fill:"#9aa3ab"}); add(g, "rect", {x:-.08*r, y:-.55*r, width:.06*r, height:.08*r, fill:"#d0462e"}); add(g, "rect", {x:.04*r, y:-.55*r, width:.06*r, height:.08*r, fill:"#2f7fbf"});
+    add(g, "path", {d:`M${-.38*r},${-.75*r} L${-.66*r},${.1*r} M${.38*r},${-.75*r} L${.66*r},${.1*r}`, style:"stroke:#eef1f4;stroke-width:" + (.24*r).toFixed(1) + ";stroke-linecap:round"});
+    add(g, "circle", {cx:0, cy:-1.32*r, r:.4*r, fill:"#f2f4f6", stroke:"#8c959e", "stroke-width":.7});
+    add(g, "ellipse", {cx:.06*r, cy:-1.3*r, rx:.28*r, ry:.22*r, fill:lin(defs, [[0,"#ffe08a"],[.5,"#d99a0b"],[1,"#7a4f00"]], 0, 0, 1, 1), stroke:"#7a4f00", "stroke-width":.5}); }
   return g;
 }
 
@@ -2597,7 +2620,15 @@ function ksachse(p, x, y0, len, dir, lab, col="var(--ink)"){
   T(p, x + 8, y2 + (dir > 0 ? -2 : 12), lab, "lbl", {style:`fill:${col}`});
   T(p, x - 9, y0 + 5, "0", "lbl-s", {"text-anchor":"end", style:`fill:${col};font-weight:700`});
 }
-Object.assign(window.KIN = window.KIN || {}, {FALL, koerper, vszene, baum, turm, brunnen, roehre, massband, ksachse});
+/* v0.2 Brücke von x1 bis x2 mit Fahrbahn bei y (Oberkante), Geländer, Pfeiler bei xp bis yb (Talboden) */
+function bruecke(p, defs, x1, x2, y, xp, yb){
+  const be = lin(defs, [[0,"#b3b9bf"],[.5,"#d9dde1"],[1,"#8c959e"]], 0, 0, 1, 0);
+  add(p, "path", {d:`M${xp - 16},${y + 12} L${xp - 26},${yb} L${xp + 26},${yb} L${xp + 16},${y + 12} Z`, fill:be, stroke:"#5c656d", "stroke-width":.8});
+  add(p, "rect", {x:x1, y, width:x2 - x1, height:12, fill:lin(defs, [[0,"#d9dde1"],[1,"#7d8790"]], 0, 0, 0, 1), stroke:"#5c656d", "stroke-width":.8});
+  add(p, "line", {x1, x2, y1:y - 14, y2:y - 14, style:"stroke:#5c656d;stroke-width:2"});
+  for(let x = x1 + 6; x <= x2 - 2; x += 14) add(p, "line", {x1:x, x2:x, y1:y - 14, y2:y, style:"stroke:#5c656d;stroke-width:1.4"});
+}
+Object.assign(window.KIN = window.KIN || {}, {FALL, WURF, koerper, vszene, baum, turm, brunnen, roehre, massband, ksachse, bruecke});
 })();
 
 /* ============ GPS-Fahrt durch Karlsruhe (window.KIN.gps) ============
