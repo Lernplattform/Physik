@@ -502,6 +502,10 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
 .stack{display:flex; flex-direction:column; gap:2px}
 .zu-reihe{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; margin-bottom:10px}
 .zu-reihe .tag{margin:0 0 2px}
+/* v0.5 (17.11.2026, LE 2.3a) Fluss in Draufsicht und Vektor-Gitter (lib_kin_vek.js) */
+svg.gfx.fluss, svg.gfx.vgit{width:100%; height:auto; display:block}
+@media (max-width:520px){ svg.gfx.big.fluss .lbl-s, svg.gfx.big.vgit .lbl-s{font-size:16px} }
+.vtab td .katex{font-size:1em}
 /* LE 2.1b Zeit-Weg-Diagramm: gemeinsame Stile in lib_kin.css */
 </style>
 <div class="site-head">
@@ -2640,6 +2644,118 @@ function film(host, o){
 Object.assign(window.KIN = window.KIN || {}, {strasse, fz, film, SPUR});
 })();
 
+/* ============ Überlagerung von Bewegungen: Fluss in Draufsicht, Boote, Person, Vektorpfeile (window.KIN.fluss, KIN.boot, KIN.person, KIN.vpf) ============
+   v0.1 (17.11.2026) für LE 2.3a Überlagerung von Bewegungen und Übungen 2.3.
+   KIN.fluss(host, o) zeichnet einen Fluss in Draufsicht (Ufer unten und oben, Wasser, Strömungslinien nach links) und gibt zurück:
+     {svg, defs, X(x), Y(y), k, layer(clip)}
+     o = {w (viewBox-Breite, 420), h, b (Flussbreite in m), k (px je m; gleich in x und y, damit Winkel stimmen), x0 (px-Lage von x = 0),
+          ufer (px-Höhe der Uferstreifen, 34), vF (Strömung in m/s, nur für die Beschriftung; 0 = stilles Wasser), richtung (−1: Strömung nach links), strom ("l": Strömungspfeil links oben, sonst rechts oben),
+          massstab (Länge des Maßstabsbalkens in m), aria}
+     Koordinaten: x längs des Ufers (positiv nach rechts = flussaufwärts), y quer (y = 0 am unteren Ufer, y = b am oberen Ufer).
+   KIN.boot(p, defs, x, y, winkel, typ, s): Boot in Draufsicht, Bug in Richtung winkel (Grad, mathematisch: 0 = nach rechts, 90 = nach oben).
+     typ "ruder" (Ruderboot mit Riemen), "motor" (Motorboot), "kajak", "faehre" (Autofähre), "schwimmer". Nicht maßstäblich.
+   KIN.person(p, x, y, s, farbe): Person von oben (Kopf, Schultern).
+   KIN.vpf(p, x1, y1, x2, y2, col, lab, o): Vektorpfeil mit Beschriftung an der Spitze (o = {w: Dicke, dx, dy, anchor}).
+   KIN.subs(textEl): „v_B“, „v_res,x“ in SVG-Text als Tiefstellung (tspan). */
+(function(){
+"use strict";
+const {el, lin} = LM.G;
+const add = (p, tag, a, k) => p.appendChild(el(tag, a, k));
+const T = (p, x, y, txt, cls="lbl-s", extra={}) => add(p, "text", Object.assign({x, y, class:cls}, extra), [txt]);
+
+function fluss(host, o){
+  host.innerHTML = "";
+  const W = o.w || 420, U = o.ufer != null ? o.ufer : 34, k = o.k, H = o.h || Math.round(o.b*k + 2*U + 24);
+  const svg = el("svg", {viewBox:`0 0 ${W} ${H}`, role:"img", "aria-label":o.aria || "", class:"gfx big fluss"});
+  const defs = el("defs"); svg.appendChild(defs); host.appendChild(svg);
+  const yu = U + o.b*k, yo = U;                                             // px: unteres und oberes Wasserufer
+  const X = x => (o.x0 != null ? o.x0 : W/2) + x*k, Y = y => yu - y*k;
+  const gras = lin(defs, [[0,"#6f9e4c"],[.5,"#8dbb62"],[1,"#5e8c3e"]], 0,0,0,1);
+  const wasser = lin(defs, [[0,"#2f6f9e"],[.5,"#4f93c4"],[1,"#2f6f9e"]], 0,0,0,1);
+  add(svg, "rect", {x:0, y:0, width:W, height:yo, fill:gras});
+  add(svg, "rect", {x:0, y:yu, width:W, height:H - yu, fill:gras});
+  add(svg, "rect", {x:0, y:yo, width:W, height:yu - yo, fill:wasser});
+  add(svg, "line", {x1:0, x2:W, y1:yo, y2:yo, style:"stroke:#c9b98a;stroke-width:3"});
+  add(svg, "line", {x1:0, x2:W, y1:yu, y2:yu, style:"stroke:#c9b98a;stroke-width:3"});
+  /* Strömungslinien (kurze Wellenstriche), Dichte nach Flussbreite */
+  const gw = add(svg, "g", {style:"stroke:#cfe6f7;stroke-width:1.4;fill:none;opacity:.55"}), n = Math.max(2, Math.round((yu - yo)/34));
+  for(let i = 0; i < n; i++){ const yy = yo + (i + .5)*(yu - yo)/n;
+    for(let xx = (i % 2 ? 18 : 48); xx < W - 20; xx += 62) add(gw, "path", {d:`M${xx},${yy} q6,-4 12,0 t12,0`}); }
+  if(o.vF){ const d = o.richtung || -1, li = o.strom === "l", xm = li ? 36 : W - 34, ym = yo + 16;   /* Pfeil am Rand (strom: "l" links, sonst rechts), Text daneben */
+    const g = add(svg, "g", {});
+    KIN.arrow(g, xm + 22*(-d), ym, xm + 22*d, ym, "#ffffff", 2.4);
+    T(g, li ? xm + 30 : xm - 30, ym + 5, `Strömung ${String(o.vF).replace(".", ",")} m/s`, "lbl-s", {"text-anchor":li ? "start" : "end", style:"fill:#ffffff;font-weight:600"}); }
+  if(o.massstab){ const L = o.massstab*k, x1 = 10, y1 = H - 10;
+    add(svg, "rect", {x:x1 - 4, y:y1 - 18, width:L + 8 + 46, height:24, rx:4, style:"fill:var(--surface);opacity:.85"});
+    add(svg, "line", {x1, x2:x1 + L, y1, y2:y1, style:"stroke:var(--ink);stroke-width:2"});
+    add(svg, "line", {x1, x2:x1, y1:y1 - 5, y2:y1 + 1, style:"stroke:var(--ink);stroke-width:2"});
+    add(svg, "line", {x1:x1 + L, x2:x1 + L, y1:y1 - 5, y2:y1 + 1, style:"stroke:var(--ink);stroke-width:2"});
+    T(svg, x1 + L + 6, y1 + 1, `${o.massstab} m`, "lbl-s", {style:"fill:var(--ink)"}); }
+  const cid = "flc" + Math.random().toString(36).slice(2, 8);
+  defs.appendChild(el("clipPath", {id:cid}, [el("rect", {x:0, y:0, width:W, height:H})]));
+  const layer = (clip=true) => add(svg, "g", clip ? {"clip-path":`url(#${cid})`} : {});
+  return {svg, defs, X, Y, k, W, H, yo, yu, layer};
+}
+
+/* Boot in Draufsicht, Bug zeigt in +x vor der Drehung */
+function boot(p, defs, x, y, winkel=90, typ="ruder", s=1){
+  const P = KIN.paints(defs), g = add(p, "g", {transform:`translate(${x},${y}) rotate(${-winkel}) scale(${s})`, filter:P.sh});
+  if(typ === "kajak"){
+    add(g, "path", {d:"M-22,0 Q-12,-5 0,-5 Q14,-5 24,0 Q14,5 0,5 Q-12,5 -22,0 Z", fill:P.gelb, stroke:"#7a4f00", "stroke-width":.8});
+    add(g, "ellipse", {cx:-1, cy:0, rx:6, ry:3.4, fill:"#2a2f35"});
+    add(g, "line", {x1:-1, y1:-15, x2:-1, y2:15, style:"stroke:#3a3f44;stroke-width:1.6"});
+    add(g, "ellipse", {cx:-1, cy:-15, rx:2.2, ry:4, fill:"#e0483d"}); add(g, "ellipse", {cx:-1, cy:15, rx:2.2, ry:4, fill:"#e0483d"});
+    add(g, "circle", {cx:-1, cy:0, r:2.6, fill:"#f0c9a0", stroke:"#6e4e26", "stroke-width":.5});
+  } else if(typ === "motor"){
+    add(g, "path", {d:"M-20,-8 L10,-8 Q22,-7 28,0 Q22,7 10,8 L-20,8 Q-23,8 -23,5 L-23,-5 Q-23,-8 -20,-8 Z", fill:"#f4f6f8", stroke:"#5c656d", "stroke-width":.9});
+    add(g, "path", {d:"M2,-6 L9,-5 Q12,0 9,5 L2,6 Z", fill:P.glasD});
+    add(g, "rect", {x:-14, y:-5, width:12, height:10, rx:2, fill:P.blau});
+    add(g, "rect", {x:-28, y:-3, width:6, height:6, rx:1.2, fill:"#30363c"});
+  } else if(typ === "faehre"){
+    add(g, "path", {d:"M-34,-14 L26,-14 Q34,-14 36,-8 L36,8 Q34,14 26,14 L-34,14 Q-38,14 -38,10 L-38,-10 Q-38,-14 -34,-14 Z", fill:"#e9edf0", stroke:"#5c656d", "stroke-width":1});
+    add(g, "rect", {x:-30, y:-10, width:56, height:20, rx:2, fill:"#8c959e"});
+    add(g, "rect", {x:-26, y:-8, width:14, height:7, rx:2, fill:P.rot}); add(g, "rect", {x:-8, y:-8, width:14, height:7, rx:2, fill:P.blau}); add(g, "rect", {x:-20, y:1, width:14, height:7, rx:2, fill:P.gelb});
+    add(g, "rect", {x:10, y:-14, width:8, height:28, rx:1.5, fill:"#f4f6f8", stroke:"#5c656d", "stroke-width":.8});
+    add(g, "rect", {x:12, y:-6, width:4, height:12, fill:P.glasD});
+  } else if(typ === "schwimmer"){
+    add(g, "ellipse", {cx:-3, cy:0, rx:9, ry:4.2, fill:"#e0483d"});
+    add(g, "circle", {cx:7, cy:0, r:3.6, fill:"#f0c9a0", stroke:"#6e4e26", "stroke-width":.5});
+    add(g, "path", {d:"M2,-4 Q8,-11 14,-9 M2,4 Q6,9 1,12", style:"fill:none;stroke:#f0c9a0;stroke-width:2.2;stroke-linecap:round"});
+  } else {   /* Ruderboot */
+    add(g, "path", {d:"M-22,-7 L8,-7 Q20,-6 26,0 Q20,6 8,7 L-22,7 Q-24,7 -24,4 L-24,-4 Q-24,-7 -22,-7 Z", fill:"#b98a52", stroke:"#6e4e26", "stroke-width":.9});
+    add(g, "path", {d:"M-19,-4.5 L8,-4.5 Q17,-4 21,0 Q17,4 8,4.5 L-19,4.5 Z", fill:"#d9b07a"});
+    add(g, "rect", {x:-5, y:-5, width:3, height:10, fill:"#8a6236"});
+    add(g, "line", {x1:-4, y1:-6, x2:-12, y2:-22, style:"stroke:#6e4e26;stroke-width:1.6"}); add(g, "line", {x1:-4, y1:6, x2:-12, y2:22, style:"stroke:#6e4e26;stroke-width:1.6"});
+    add(g, "ellipse", {cx:-13, cy:-23, rx:2, ry:4, fill:"#6e4e26", transform:"rotate(-25 -13 -23)"}); add(g, "ellipse", {cx:-13, cy:23, rx:2, ry:4, fill:"#6e4e26", transform:"rotate(25 -13 23)"});
+    add(g, "circle", {cx:-8, cy:0, r:3, fill:"#f0c9a0", stroke:"#6e4e26", "stroke-width":.5});
+  }
+  return g;
+}
+function person(p, x, y, s=1, farbe="#2a6db3"){
+  const g = add(p, "g", {transform:`translate(${x},${y}) scale(${s})`});
+  add(g, "ellipse", {cx:0, cy:0, rx:7, ry:4, fill:farbe, stroke:"#14406e", "stroke-width":.7});
+  add(g, "circle", {cx:0, cy:0, r:3, fill:"#f0c9a0", stroke:"#6e4e26", "stroke-width":.5});
+  return g;
+}
+/* Tiefstellung in SVG-Beschriftungen: „v_B“, „v_res,x“, „v_{quer}“ → v mit tiefgestelltem Index (tspan) */
+function subs(t){ const s = t.textContent; if(s.indexOf("_") < 0) return t; t.textContent = "";
+  s.split(/(_\{[^}]*\}|_[A-Za-zäöü0-9,]+)/).forEach(p => { if(!p) return;
+    if(p[0] === "_") t.appendChild(el("tspan", {"baseline-shift":"sub", "font-size":"80%"}, [p[1] === "{" ? p.slice(2, -1) : p.slice(1)]));
+    else t.appendChild(el("tspan", {}, [p])); });
+  return t; }
+/* Vektorpfeil mit Beschriftung (Text mit Halo, damit er auf Wasser und Gitter lesbar bleibt) */
+function vpf(p, x1, y1, x2, y2, col, lab, o={}){
+  const g = add(p, "g", {});
+  if(Math.hypot(x2 - x1, y2 - y1) < 2){ add(g, "circle", {cx:x1, cy:y1, r:3.5, style:`fill:${col}`}); }
+  else KIN.arrow(g, x1, y1, x2, y2, col, o.w || 2.6);
+  if(lab){ const a = Math.atan2(y2 - y1, x2 - x1), dx = o.dx != null ? o.dx : Math.cos(a)*10, dy = o.dy != null ? o.dy : Math.sin(a)*10 + 5;
+    const an = o.anchor || (Math.cos(a) > .3 ? "start" : Math.cos(a) < -.3 ? "end" : "middle");
+    subs(T(g, x2 + dx, y2 + dy, lab, "lbl-s", {"text-anchor":an, style:`fill:${o.tcol || col};font-weight:700;paint-order:stroke;stroke:var(--surface);stroke-width:3.5px`})); }
+  return g;
+}
+Object.assign(window.KIN = window.KIN || {}, {fluss, boot, person, vpf, subs});
+})();
+
 /* ============ Grafiken und Simulationen LE 2.1b Zeit-Weg-Diagramm (v0.1, 17.11.2026) ============
    fig-start (Problemstellung: Abschnitt 11→12 mit Durchschnittsgerade) · fig-sdiag + ctrl-sdiag (GPS-Daten eintragen, Steigungsdreieck zwischen zwei Markern)
    fig-stg + ctrl-stg (Steigungsdreieck an beliebigen Punkten, x-y ↔ t-s) · fig-trug + ctrl-trug (Trugschluss „oberhalb = schneller“)
@@ -3022,7 +3138,7 @@ const RE=/\$\$([^$]+?)\$\$|\$(?![\s{$])([^$\n]*?[^\s$\\])\$(?!\{)/g,SK=new Set([
 const plain=s=>s.replace(/\\[A-Za-z]+/g,"").replace(/[{}]/g,"");
 const prep=function prep(t){
   const keep = []; const put = s => `\u0000${keep.push(s)-1}\u0000`;
-  t = t.replace(/\\(?:text|mathrm|textbf|mathbf|operatorname|htmlClass)\{[^{}]*\}/g, m => put(m));   // Text in \text{…} und Klassennamen unverändert
+  t = t.replace(/\\(?:text|mathrm|textbf|mathbf|operatorname|htmlClass|begin|end)\{[^{}]*\}/g, m => put(m));   // Text in \text{…}, Klassennamen und Umgebungen (v0.2, 17.11.2026: \begin{pmatrix} für Vektoren, LE 2.3a) unverändert
   t = t.replace(/([A-Za-z])\u0307/g, "\\dot{$1}").replace(/ṁ/g, "\\dot{m}").replace(/([A-Za-z])\u0304/g, "\\bar{$1}");   // V̇ ṁ v̄
   const SUP = {"⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","⁻":"-"}, SUB = {"₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5"};
   t = t.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g, m => "^{" + [...m].map(c=>SUP[c]).join("") + "}").replace(/[₀₁₂₃₄₅]+/g, m => "_{" + [...m].map(c=>SUB[c]).join("") + "}");
