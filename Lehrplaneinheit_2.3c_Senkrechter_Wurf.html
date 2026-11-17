@@ -2547,7 +2547,12 @@ Object.assign(window.KIN, {mini});
    KIN.vszene(host, o) senkrechte Szene: Höhe in m nach oben (Y(m) → px), Boden, Himmel; o = {w, h, H (oben, m), U (unten, m, z. B. −30 beim Brunnen), T, B, aria}
    KIN.baum / KIN.turm / KIN.brunnen / KIN.roehre / KIN.massband / KIN.ksachse  Bausteine für senkrechte Szenen.
    v0.2 (17.11.2026, LE 2.3c Senkrechter Wurf): KIN.WURF (KS am Boden, nach oben: h(t) = h0 + v0·t − ½·g·t², v(t) = v0 − g·t; tS, hMax, tF, tW, vA),
-   KIN.bruecke (Brücke mit Geländer und Pfeiler), Körpertyp „astronaut“ (Raumanzug, Helm mit Goldvisier, Rückentornister). */
+   KIN.bruecke (Brücke mit Geländer und Pfeiler), Körpertyp „astronaut“ (Raumanzug, Helm mit Goldvisier, Rückentornister).
+   v0.3 (17.11.2026, LE 2.3d Waagrechter Wurf): KIN.WWURF (KS im Abwurfpunkt, x in Wurfrichtung, y nach unten: x = v0·t, y = ½·g·t², tW, w, vA, α, k = g/(2v0²)),
+   KIN.wszene(host, o) Seitenansicht mit gleichem Maßstab in x und y (Winkel stimmen), Ursprung im Abwurfpunkt, y nach unten; o = {w, h, x0, x1 (m), h0, top (m über dem Abwurfpunkt),
+     boden: "boden" | "wasser" | "rasen", aria} → {svg, defs, X(x), Y(y), k, yb, layer, w, h};
+   KIN.sockel(p, defs, xa, xe, y0, yb, typ) Unterbau des Abwurfpunkts: "tisch", "turm", "fels", "mauer", "rutsche";
+   KIN.ksxy(p, x0, y0, lx, ly, col) Achsenkreuz x nach rechts, y nach unten mit „0“. */
 (function(){
 "use strict";
 const {el, lin, rad, shadow} = LM.G;
@@ -2577,6 +2582,18 @@ const WURF = {
   tF(h0, v0, g=10){ return Math.sqrt(2*WURF.hMax(h0, v0, g)/g); },             // Fallzeit ab Scheitel (nur für v0 ≥ 0)
   tW(h0, v0, g=10){ return (v0 + Math.sqrt(v0*v0 + 2*g*h0))/g; },              // Wurfdauer bis h = 0 (positive Lösung, alle v0)
   vA(h0, v0, g=10){ return -Math.sqrt(v0*v0 + 2*g*h0); }                       // Aufprallgeschwindigkeit (negativ = nach unten)
+};
+
+/* v0.3 waagrechter Wurf, KS im Abwurfpunkt: x in Wurfrichtung, y nach unten (alle Größen positiv) */
+const WWURF = {
+  x(t, v0){ return v0*t; },
+  y(t, g=10){ return g*t*t/2; },
+  vy(t, g=10){ return g*t; },
+  tW(h0, g=10){ return Math.sqrt(2*h0/g); },
+  w(h0, v0, g=10){ return v0*Math.sqrt(2*h0/g); },
+  vA(h0, v0, g=10){ return Math.sqrt(v0*v0 + 2*g*h0); },
+  alpha(h0, v0, g=10){ return Math.atan2(Math.sqrt(2*g*h0), v0)*180/Math.PI; },   // Aufprallwinkel zur Waagrechten in Grad
+  k(v0, g=10){ return g/(2*v0*v0); }                                                 // Bahngleichung y = k·x²
 };
 
 /* ---------- Körper ---------- */
@@ -2693,7 +2710,43 @@ function bruecke(p, defs, x1, x2, y, xp, yb){
   add(p, "line", {x1, x2, y1:y - 14, y2:y - 14, style:"stroke:#5c656d;stroke-width:2"});
   for(let x = x1 + 6; x <= x2 - 2; x += 14) add(p, "line", {x1:x, x2:x, y1:y - 14, y2:y, style:"stroke:#5c656d;stroke-width:1.4"});
 }
-Object.assign(window.KIN = window.KIN || {}, {FALL, WURF, koerper, vszene, baum, turm, brunnen, roehre, massband, ksachse, bruecke});
+/* v0.3 Seitenansicht mit gleichem Maßstab (waagrechter Wurf): Ursprung im Abwurfpunkt, y nach unten */
+function wszene(host, o){
+  host.innerHTML = "";
+  const w = o.w || 420, h = o.h || 300, top = o.top != null ? o.top : 0.15*o.h0, pb = o.pb != null ? o.pb : 26;
+  const k = Math.min(w/(o.x1 - o.x0), (h - pb - 6)/(o.h0 + top)), Xo = -o.x0*k + (o.center === false ? 0 : Math.max(0, (w - (o.x1 - o.x0)*k)/2)), Yo = 6 + top*k;   // zentriert, wenn die Höhe begrenzt
+  const X = x => Xo + x*k, Y = y => Yo + y*k, yb = Y(o.h0);
+  const svg = el("svg", {viewBox:`0 0 ${w} ${h}`, role:"img", "aria-label":o.aria || "", class:"gfx big fall"});
+  const defs = el("defs"); svg.appendChild(defs); host.appendChild(svg);
+  add(svg, "rect", {x:0, y:0, width:w, height:yb, fill:lin(defs, [[0,"#cfe6f7"],[1,"#eef6fc"]], 0, 0, 0, 1), class:"himmel"});
+  const g0 = add(svg, "g", {}), bd = o.boden || "boden";
+  if(bd === "wasser"){ add(g0, "rect", {x:0, y:yb, width:w, height:h - yb, fill:lin(defs, [[0,"#5aa0d8"],[1,"#1d5f93"]], 0, 0, 0, 1)}); add(g0, "line", {x1:0, x2:w, y1:yb, y2:yb, style:"stroke:#9fd2f5;stroke-width:2"}); }
+  else if(bd === "rasen"){ add(g0, "rect", {x:0, y:yb, width:w, height:h - yb, fill:lin(defs, [[0,"#8a6a45"],[1,"#5c4430"]], 0, 0, 0, 1)}); add(g0, "rect", {x:0, y:yb - 3, width:w, height:6, fill:"#5f9e4a"}); }
+  else { add(g0, "rect", {x:0, y:yb, width:w, height:h - yb, fill:lin(defs, [[0,"#b9b2a6"],[1,"#8c857a"]], 0, 0, 0, 1)}); add(g0, "line", {x1:0, x2:w, y1:yb, y2:yb, style:"stroke:#6b655c;stroke-width:2"}); }
+  const layer = () => add(svg, "g", {});
+  return {svg, defs, X, Y, k, yb, layer, g0, w, h};
+}
+/* Unterbau des Abwurfpunkts von xa bis xe (px), Oberkante y0, Boden yb */
+function sockel(p, defs, xa, xe, y0, yb, typ="tisch"){
+  if(typ === "tisch"){ add(p, "rect", {x:xa, y:y0, width:xe - xa, height:7, rx:1.5, fill:lin(defs, [[0,"#c8945a"],[1,"#8a5a2b"]], 0, 0, 0, 1), stroke:"#5c3d1e", "stroke-width":.7});
+    [xa + 6, xe - 10].forEach(x => add(p, "rect", {x, y:y0 + 7, width:5, height:yb - y0 - 7, fill:"#7d5530"})); }
+  else if(typ === "turm"){ add(p, "rect", {x:xa, y:y0, width:xe - xa, height:yb - y0, fill:lin(defs, [[0,"#9aa3ab"],[.5,"#dfe4e8"],[1,"#7d8790"]], 0, 0, 1, 0), stroke:"#5c656d", "stroke-width":.8});
+    add(p, "rect", {x:xa, y:y0 - 4, width:xe - xa + 2, height:6, rx:1.5, fill:"#3f6f9e", stroke:"#1d3f5e", "stroke-width":.6}); }
+  else if(typ === "fels"){ add(p, "path", {d:`M${xa},${yb} L${xa},${y0} L${xe - 4},${y0} Q${xe + 4},${y0 + (yb - y0)*.25} ${xe - 3},${y0 + (yb - y0)*.5} Q${xe + 8},${y0 + (yb - y0)*.8} ${xe + 2},${yb} Z`, fill:lin(defs, [[0,"#8d8170"],[1,"#5a5045"]], 0, 0, 1, 1), stroke:"#3f382f", "stroke-width":.8}); }
+  else if(typ === "mauer"){ add(p, "rect", {x:xa, y:y0, width:xe - xa, height:yb - y0, fill:lin(defs, [[0,"#c9b9a3"],[1,"#9c8b74"]], 0, 0, 1, 0), stroke:"#6b5d4b", "stroke-width":.8});
+    for(let y = y0 + 10; y < yb; y += 10) add(p, "line", {x1:xa, x2:xe, y1:y, y2:y, style:"stroke:#8a7a64;stroke-width:.6"}); }
+  else if(typ === "rutsche"){ add(p, "path", {d:`M${xa},${y0 - (yb - y0)*1.1} Q${xa + (xe - xa)*.55},${y0} ${xe},${y0} L${xe},${y0 + 7} Q${xa + (xe - xa)*.5},${y0 + 9} ${xa},${y0 - (yb - y0)*1.1 + 9} Z`, fill:lin(defs, [[0,"#ffd27a"],[1,"#e08a00"]], 0, 0, 1, 0), stroke:"#8a4f00", "stroke-width":.8});
+    [xa + (xe - xa)*.3, xe - 8].forEach(x => add(p, "rect", {x, y:y0 + 4, width:4, height:yb - y0 - 4, fill:"#8c959e"})); }
+}
+/* Achsenkreuz: Ursprung (x0, y0), x nach rechts (Länge lx), y nach unten (Länge ly) */
+function ksxy(p, x0, y0, lx, ly, col="var(--ink)", lab=["x", "y"]){
+  add(p, "line", {x1:x0, x2:x0 + lx - 7, y1:y0, y2:y0, style:`stroke:${col};stroke-width:2`}); add(p, "path", {d:`M${x0 + lx},${y0} l-10,-5 v10 z`, style:`fill:${col}`});
+  add(p, "line", {x1:x0, x2:x0, y1:y0, y2:y0 + ly - 7, style:`stroke:${col};stroke-width:2`}); add(p, "path", {d:`M${x0},${y0 + ly} l-5,-10 h10 z`, style:`fill:${col}`});
+  const st = `fill:${col};font-weight:700;paint-order:stroke;stroke:var(--surface);stroke-width:3.5px`;
+  T(p, x0 + lx - 2, y0 - 8, lab[0], "lbl", {"text-anchor":"end", style:st}); T(p, x0 + 9, y0 + ly - 2, lab[1], "lbl", {style:st});
+  T(p, x0 - 6, y0 - 6, "0", "lbl-s", {"text-anchor":"end", style:st});
+}
+Object.assign(window.KIN = window.KIN || {}, {FALL, WURF, WWURF, koerper, vszene, baum, turm, brunnen, roehre, massband, ksachse, bruecke, wszene, sockel, ksxy});
 })();
 
 /* ============ GPS-Fahrt durch Karlsruhe (window.KIN.gps) ============
