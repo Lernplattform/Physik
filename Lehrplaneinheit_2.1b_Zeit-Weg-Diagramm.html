@@ -492,6 +492,12 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
 @media (max-width:520px){ svg.gfx.big.strasse .lbl-s{font-size:17px} }
 .ctrl .btn.secondary[aria-pressed="true"]{background:var(--blue); color:var(--bg); border-color:var(--blue)}
 .figure > div > svg.gfx.strasse{max-width:560px}
+/* v0.3 (17.11.2026) Abbildungen im Lesetext (.figure.lfig, zwei nebeneinander .lfig2) */
+.input .figure.lfig{max-width:560px; margin:10px 0 14px}
+.input .figure.lfig > p{margin:4px 0 0}
+.lfig2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+@media (max-width:760px){ .lfig2{grid-template-columns:1fr} }
+.input .figure.lfig2w{max-width:none}
 /* LE 2.1b Zeit-Weg-Diagramm: gemeinsame Stile in lib_kin.css */
 </style>
 <div class="site-head">
@@ -578,6 +584,7 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
     <p>Der Tracker speichert nur jede volle Minute. Was dazwischen passiert, weiß man nicht: Das Auto kann an einer Ampel gestanden, beschleunigt oder gebremst haben. Deshalb verbindet man die Messpunkte nur <b>gestrichelt</b>. Die Linie zeigt die Reihenfolge der Punkte, aber nicht den wirklichen Verlauf.</p>
     <h3>Steil heißt schnell</h3>
     <p>Zwischen zwei benachbarten Markern vergeht immer eine Minute. Kommt das Auto in dieser Minute weit, steigt die Linie stark an; kommt es kaum voran, verläuft sie flach. Die <b>Steigung</b> der Kurve ist also ein Maß für die Geschwindigkeit. Ein waagrechtes Stück würde bedeuten: Die Zeit läuft weiter, der Ort ändert sich nicht, das Auto steht.</p>
+    <div class="figure lfig"><div id="fig-l-gps"></div><p class="small muted">Abb.: Die GPS-Messpunkte im $s(t)$-Diagramm, gestrichelt verbunden. Wo das Auto in einer Minute weit kommt, ist die Linie steil (rot), wo es kaum vorankommt, flach (grün).</p></div>
   </div>
   <div class="figure">
     <p class="tag" style="color:var(--blue)">Simulation · GPS-Daten im s(t)-Diagramm</p>
@@ -620,6 +627,7 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
     <h2>Steigung = Geschwindigkeit</h2>
     <h3>Das Steigungsdreieck</h3>
     <p>Aus der Mathematik kennst du die Steigung einer Geraden im $x$-$y$-Diagramm: $m = \dfrac{Δy}{Δx}$. Sie gibt an, um wie viel $y$ wächst, wenn $x$ um eins wächst. Im Zeit-Weg-Diagramm steht statt $x$ die Zeit $t$ und statt $y$ der Ort $s$. Die Steigung ist dann $\dfrac{Δs}{Δt}$, und das ist genau die Definition der Geschwindigkeit. Die Steigung im $s(t)$-Diagramm ist also nicht nur ein Maß für die Geschwindigkeit, sie <b>ist</b> die Geschwindigkeit. Welche zwei Punkte man für das Dreieck nimmt, ist egal, solange sie auf <b>derselben Geraden</b> liegen.</p>
+    <div class="figure lfig"><div id="fig-l-stg"></div><p class="small muted">Abb.: Zwei verschieden große Steigungsdreiecke an derselben Geraden ergeben dieselbe Steigung, also dieselbe Geschwindigkeit.</p></div>
     <div class="fbox fl"><p class="fcap">Steigung im s(t)-Diagramm</p>$$\text{Steigung} = \dfrac{Δs}{Δt} = v$$</div>
     <h3>Durchschnittsgeschwindigkeit</h3>
     <p>Zwischen Marker (11) und (12) kommt das Auto in 60 s um 900 m weiter: $\bar v = 15 m/s$. Ob es dazwischen mal schneller und mal langsamer war, weiß man nicht. Deshalb ist das eine <b>Durchschnittsgeschwindigkeit</b> $\bar v$. Wäre das Auto konstant so schnell gefahren, läge seine Fahrt auf der grünen <b>Durchschnittsgeraden</b>; dann könnte man jeden Zwischenstand ablesen (Musterbeispiel).</p>
@@ -668,6 +676,7 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
     <div class="fbox fl"><p class="fcap">Momentangeschwindigkeit</p>$$v(t) = \lim_{Δt → 0} \dfrac{Δs}{Δt}$$<p class="fnote">Durch null wird dabei nicht geteilt: Bei einer Funktion $s(t)$ kürzt sich $Δt$ vorher heraus (Erarbeitung 9).</p></div>
     <h3>Aus der Sekante wird die Tangente</h3>
     <p>Die Gerade durch die Kurvenpunkte bei $t_1$ und $t_1 + Δt$ heißt <b>Sekante</b>; ihre Steigung ist die Durchschnittsgeschwindigkeit. Wird $Δt$ kleiner, rückt der zweite Punkt an den ersten heran, und die Sekante dreht sich. Für $Δt → 0$ werden aus zwei Schnittpunkten ein einziger Berührpunkt: Die Sekante wird zur <b>Tangente</b>. Ihre Steigung ist die Momentangeschwindigkeit. Der Tacho im Auto zeigt diese Momentangeschwindigkeit an.</p>
+    <div class="figure lfig"><div id="fig-l-sek"></div><p class="small muted">Abb.: Sekanten ab 15:02:25 Uhr mit kleiner werdendem $Δt$. Sie drehen sich immer näher an die Tangente (gestrichelt) heran.</p></div>
     <div class="fbox fl"><p class="fcap">Im s(t)-Diagramm</p><p>Durchschnittsgeschwindigkeit $\bar v$ = Steigung der <b>Sekante</b> &nbsp;·&nbsp; Momentangeschwindigkeit $v$ = Steigung der <b>Tangente</b></p></div>
   </div>
   <div id="ex-tan"></div>
@@ -2513,7 +2522,34 @@ function strasse(host, o){
     setFz(list){ while(fzLayer.firstChild) fzLayer.removeChild(fzLayer.firstChild);
       list.forEach(f => { const x = X(f.s); if(x < -40 || x > W + 40) return; fz(fzLayer, defs, f.typ, x, f.y || (f.dir > 0 ? SPUR.r : SPUR.l), f.dir, f.farbe, f.nr); }); }};
 }
-Object.assign(window.KIN = window.KIN || {}, {strasse, fz, SPUR});
+/* v0.3 (17.11.2026, Lehrkraft: „Immer wenn sinnvoll Abbildungen oder Simulationen/Animationen verwenden!“): Abbildungen in Lesetexten.
+   KIN.film(host, o) = Filmstreifen: dieselbe Straße zu mehreren Zeitpunkten untereinander (wie Einzelbilder eines Videos).
+     o = {w (420), sMin, sMax, tick, lab, unit ("s in m"), aria,
+          marks:[{s, txt, col}] (senkrechte gestrichelte Hilfslinien durch alle Bilder, Text oben),
+          rows:[{t:"t = 0", fz:[{s, typ, farbe, spur:0|1 (0 = untere Spur), dir, txt (Text rechts bzw. links neben dem Fahrzeug)}]}]}
+     Fahrzeuge kleiner als in KIN.strasse (nicht maßstäblich). */
+function film(host, o){
+  const W = o.w || 420, L = 70, R = W - 14, RH = 44, top = (o.marks || []).some(m => m.txt) ? 24 : 6, H = top + o.rows.length*RH + 52;
+  const {svg, defs} = LM.G.svgRoot(host, W, H, o.aria || "Filmstreifen einer Bewegung"); svg.classList.add("big", "strasse");
+  const X = s => L + (R - L)*(s - o.sMin)/(o.sMax - o.sMin), P = KIN.paints(defs);
+  o.rows.forEach((r, i) => { const y = top + i*RH;
+    add(svg, "rect", {x:L - 4, y:y + 4, width:R - L + 8, height:32, rx:3, fill:P.asphalt});
+    add(svg, "line", {x1:L - 4, x2:R + 4, y1:y + 20, y2:y + 20, style:"stroke:#f4f4f4;stroke-width:1;stroke-dasharray:8 6"});
+    T(svg, L - 10, y + 25, r.t, "lbl-s", {"text-anchor":"end", style:"font-weight:600"});
+    (r.fz || []).forEach(f => { const yy = y + (f.spur ? 12 : 28), x = X(f.s), dir = f.dir || 1, g = add(svg, "g", {transform:`translate(${x},${yy}) scale(.62)`});
+      fz(g, defs, f.typ, 0, 0, dir, f.farbe);
+      if(f.txt){ const right = f.links ? false : x < R - 70; const off = f.typ === "lkw" ? 30 : 16; T(svg, x + (right ? off : -off), yy + 5, f.txt, "lbl-s", {"text-anchor":right ? "start" : "end", style:"fill:#fff;font-weight:600;paint-order:stroke;stroke:#30363c;stroke-width:3px"}); } });
+  });
+  const yb = top + o.rows.length*RH + 6, step = o.tick || 10, lab = o.lab || 50;
+  (o.marks || []).forEach(m => { const x = X(m.s); add(svg, "line", {x1:x, x2:x, y1:top - 2, y2:yb, style:`stroke:${m.col || "var(--err)"};stroke-width:1.5;stroke-dasharray:4 3`}); if(m.txt) T(svg, x, top - 8, m.txt, "lbl-s", {"text-anchor":"middle", style:`fill:${m.col || "var(--err)"}`}); });
+  add(svg, "line", {x1:L, x2:R, y1:yb, y2:yb, style:"stroke:var(--ink);stroke-width:1.2"});
+  for(let s = Math.ceil(o.sMin/step)*step; s <= o.sMax + 1e-9; s += step){ const big = Math.abs(s/lab - Math.round(s/lab)) < 1e-6;
+    add(svg, "line", {x1:X(s), x2:X(s), y1:yb, y2:yb + (big ? 7 : 4), style:"stroke:var(--ink);stroke-width:1"});
+    if(big) T(svg, X(s), yb + 22, String(Math.round(s)).replace("-", "−"), "lbl-s", {"text-anchor":"middle"}); }
+  T(svg, R, yb + 42, o.unit || "s in m", "lbl-s", {"text-anchor":"end"});
+  return {svg, defs, X, H, top, RH};
+}
+Object.assign(window.KIN = window.KIN || {}, {strasse, fz, film, SPUR});
 })();
 
 /* ============ Grafiken und Simulationen LE 2.1b Zeit-Weg-Diagramm (v0.1, 17.11.2026) ============
@@ -2743,6 +2779,54 @@ const modWahl = (id, keys, sel) => `<label><span>Bewegung</span><select id="${id
     const step = () => { dt = Math.max(0.01, dt*0.94); setDt(dt); if(dt > 0.01) raf = requestAnimationFrame(step); else { tan = true; $("#se-tan").checked = true; draw(); } };
     if(LM.G.reduced()){ tan = true; $("#se-tan").checked = true; setDt(0.01); } else raf = requestAnimationFrame(step); });
   slider(); draw();
+})();
+})();
+/* ---------------- v0.3 (17.11.2026) Abbildungen in den Lesetexten (Lehrkraft: „Immer wenn sinnvoll Abbildungen oder Simulationen/Animationen verwenden!“) ---------------- */
+(function(){
+"use strict";
+const {diag, add, T, f} = KIN, $ = E.$;
+const RED = "var(--err)", GREEN = "var(--ok)", BLUE = "var(--blue)", INK = "var(--ink)", OCKER = "var(--maybe)";
+const lt = (g, x, y, t, col, anchor="start") => T(g, x, y, t, "lbl-s", {"text-anchor":anchor, style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:3px`});
+const line = (g, x1, y1, x2, y2, st) => add(g, "line", {x1, y1, x2, y2, style:st});
+const dot = (g, x, y, col, r=5) => add(g, "circle", {cx:x, cy:y, r, style:`fill:${col};stroke:var(--surface);stroke-width:1.5`});
+const MINI = {w:420, h:280, L:62, R:404, T:22, B:232};
+const uhr = m => { const h = 14 + Math.floor((55 + m)/60), mi = (55 + m) % 60; return `${h}:${String(mi).padStart(2,"0")}`; };
+const poly = (d, g, P, col, w=2.6, dash) => { const Q = P.map(p => [d.X(p[0]), d.Y(p[1])]); add(g, "path", {d:d.path(Q), style:`fill:none;stroke:${col};stroke-width:${w};${dash ? "stroke-dasharray:" + dash : ""}`}); d.curves.push({pts:Q, col}); return Q; };
+
+const GPS_S = KIN.GPS_S, SEG11 = KIN.SEG11;
+(function(){
+  const host = $("#fig-l-gps"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,12,1,2], s:[0,10000,500,2000], tTitle:"Uhrzeit", sTitle:"s in m", ft:uhr, cross:{fx:m => uhr(Math.round(m)), fy:v => f(v,0)+" m"},
+    aria:"s(t)-Diagramm der GPS-Daten von Marker (4) um 14:55 Uhr bis (16) um 15:07 Uhr, Punkte gestrichelt verbunden. Flaches Stück (7)→(8): 150 m in einer Minute; steiles Stück (13)→(14): 1650 m in einer Minute."}));
+  const g = d.layer(), gl = d.layer(false);
+  poly(d, g, GPS_S.map((s, i) => [i, s]), INK, 1.6, "5 4");
+  poly(d, g, [[3, GPS_S[3]], [4, GPS_S[4]]], GREEN, 4); poly(d, g, [[9, GPS_S[9]], [10, GPS_S[10]]], RED, 4);
+  GPS_S.forEach((s, i) => dot(gl, d.X(i), d.Y(s), BLUE, 4));
+  lt(gl, d.X(4.4), d.Y(GPS_S[4]) + 8, "(7)→(8): flach, 150 m", GREEN); lt(gl, d.X(9.4), d.Y(GPS_S[10]) + 4, "(13)→(14): steil, 1650 m", RED, "end");
+  d.cross();
+})();
+(function(){
+  const host = $("#fig-l-stg"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,60,5,10], s:[4100,5100,50,200], tTitle:"t in s nach 15:02:00 Uhr", sTitle:"s in m", cross:{fx:v => f(v,0)+" s", fy:v => f(v,0)+" m"},
+    aria:"Durchschnittsgerade von Marker (11) bei 4170 m nach (12) bei 5070 m mit zwei Steigungsdreiecken: 300 m in 20 s und 750 m in 50 s, beide 15 m/s."}));
+  const g = d.layer(), gl = d.layer(false), S = t => 4170 + 15*t;
+  poly(d, g, [[0, S(0)], [60, S(60)]], GREEN, 2.8);
+  KIN.dreieck(d, g, 5, S(5), 25, S(25), {col:BLUE, dtTxt:"20 s", dsTxt:"300 m"}); KIN.dreieck(d, g, 5, S(5), 55, S(55), {col:RED, lab:false});
+  lt(gl, d.X(30), d.Y(S(5)) + 20, "Δt = 50 s", RED, "middle"); lt(gl, d.X(55) - 6, d.Y(S(30)), "Δs = 750 m", RED, "end");
+  lt(gl, d.X(1), d.Y(5050), "300 m : 20 s = 750 m : 50 s = 15 m/s", INK);
+  d.cross();
+})();
+(function(){
+  const host = $("#fig-l-sek"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,60,5,10], s:[4100,5200,50,200], tTitle:"t in s nach 15:02:00 Uhr", sTitle:"s in m", cross:{fx:v => f(v,1)+" s", fy:v => f(v,0)+" m"},
+    aria:"Realer Verlauf von (11) nach (12) mit Sekanten ab 15:02:25 Uhr für Δt = 30 s, 15 s und 5 s; je kleiner Δt, desto näher liegt die Sekante an der Tangente (gestrichelt, 30 m/s)."}));
+  const g = d.layer(), gl = d.layer(false), S = t => 4170 + SEG11.S(t), t1 = 25, s1 = S(t1);
+  poly(d, g, d.pts(S, 0, 60, 240).map(p => [d.tv(p[0]), d.sv(p[1])]), RED, 2.6);
+  [[30, "#9db7d3"], [15, "#5a8fc0"], [5, BLUE]].forEach(([dt, col]) => { const m = (S(t1 + dt) - s1)/dt; line(g, d.X(t1 - 15), d.Y(s1 - 15*m), d.X(t1 + dt + 5), d.Y(s1 + (dt + 5)*m), `stroke:${col};stroke-width:2`); dot(gl, d.X(t1 + dt), d.Y(S(t1 + dt)), col, 4);
+    lt(gl, d.X(t1 + dt) + (dt > 20 ? -4 : 4), d.Y(S(t1 + dt)) + 18, `Δt = ${dt} s`, col, dt > 20 ? "end" : "start"); });
+  const v = SEG11.V(t1); line(g, d.X(t1 - 12), d.Y(s1 - 12*v), d.X(t1 + 8), d.Y(s1 + 8*v), `stroke:${INK};stroke-width:2;stroke-dasharray:7 4`);
+  dot(gl, d.X(t1), d.Y(s1), RED, 5); lt(gl, d.X(t1) - 6, d.Y(s1) - 12, "Tangente: 30 m/s", INK, "end");
+  d.cross();
 })();
 })();
 

@@ -492,6 +492,12 @@ svg.gfx.strasse{width:100%; height:auto; display:block}
 @media (max-width:520px){ svg.gfx.big.strasse .lbl-s{font-size:17px} }
 .ctrl .btn.secondary[aria-pressed="true"]{background:var(--blue); color:var(--bg); border-color:var(--blue)}
 .figure > div > svg.gfx.strasse{max-width:560px}
+/* v0.3 (17.11.2026) Abbildungen im Lesetext (.figure.lfig, zwei nebeneinander .lfig2) */
+.input .figure.lfig{max-width:560px; margin:10px 0 14px}
+.input .figure.lfig > p{margin:4px 0 0}
+.lfig2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+@media (max-width:760px){ .lfig2{grid-template-columns:1fr} }
+.input .figure.lfig2w{max-width:none}
 /* LE 2.1c Zeit-Geschwindigkeits-Diagramm: gemeinsame Stile in lib_kin.css; hier nur Besonderheiten */
 #fig-tr > div + div, #fig-a2 > div + div, #fig-fl > div + div, #fig-a1 > div + div, #fig-dm > div + div{margin-top:4px}
 .ctrl .vgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:6px 10px}
@@ -584,6 +590,7 @@ svg.gfx .kz{cursor:pointer}
     <p>Weil man für jeden Abschnitt nur die <b>Durchschnittsgeschwindigkeit</b> kennt, ist die Geschwindigkeit im Diagramm innerhalb eines Abschnitts konstant. Es entsteht eine <b>Treppe</b>: eine waagrechte Stufe je Minute.</p>
     <h3>Sprünge gibt es nicht</h3>
     <p>So ist natürlich niemand gefahren. Erstens hält kein Auto eine Minute lang exakt dieselbe Geschwindigkeit. Zweitens kann ein Körper seine Geschwindigkeit nicht beliebig schnell ändern. An den senkrechten Kanten der Treppe würde sich die Geschwindigkeit in <b>null Sekunden</b> ändern; das ist unmöglich. Geschwindigkeiten ändern sich immer nur über eine gewisse Zeit. Ein realer Verlauf ist deshalb eine <b>durchgehende Kurve</b> ohne Sprünge. Dasselbe gilt für den Ort: Auch im $s(t)$-Diagramm gibt es in Wirklichkeit weder Sprünge noch scharfe Knicke.</p>
+    <div class="figure lfig"><div id="fig-l-sprung"></div><p class="small muted">Abb.: An einer senkrechten Kante müsste sich die Geschwindigkeit in null Sekunden ändern. Ein reales Fahrzeug braucht dafür Zeit (gestrichelt).</p></div>
     <h3>v(t) aus einem s(t)-Diagramm</h3>
     <p>Besteht ein $s(t)$-Diagramm aus geraden Stücken, liest du für jedes Stück die Steigung ab: Das ist die Höhe der Stufe im $v(t)$-Diagramm. Ein waagrechtes Stück im $s(t)$-Diagramm (das Auto steht) wird im $v(t)$-Diagramm ein Stück <b>auf der Zeitachse</b>, also $v = 0$.</p>
   </div>
@@ -624,9 +631,11 @@ svg.gfx .kz{cursor:pointer}
     <h2>Die Fläche ist eine Strecke</h2>
     <h3>Ein Rechteck unter einer Stufe</h3>
     <p>Unter einer Stufe der Treppe liegt ein Rechteck. Seine Fläche ist Höhe mal Breite. Die Höhe ist die Geschwindigkeit $v$, die Breite der Zeitabschnitt $Δt$. Aus der Definition der Geschwindigkeit $v = \dfrac{Δs}{Δt}$ folgt durch Umstellen $v · Δt = Δs$: Die Fläche ist genau die <b>Positionsänderung</b> in diesem Zeitabschnitt. Auch die Einheit passt: $\text{m/s} · \text{s} = \text{m}$.</p>
+    <div class="figure lfig"><div id="fig-l-rechteck"></div><p class="small muted">Abb.: Das Rechteck unter der Stufe von (11) nach (12): Höhe mal Breite ist die Strecke 900 m.</p></div>
     <div class="fbox fl"><p class="fcap">Fläche im v(t)-Diagramm</p>$$\text{Fläche} = v · Δt = Δs$$<p class="fnote">Zwischen Marker (11) und (12): $15 m/s · 60 s = 900 m$. Das s(t)-Diagramm bestätigt: $5070 m − 4170 m = 900 m$.</p></div>
     <h3>Mehrere Abschnitte</h3>
     <p>Für längere Zeitabschnitte zerlegt man die Fläche in Teilflächen und addiert sie. Schräge Stücke (das Auto wird gleichmäßig schneller oder langsamer) ergeben Dreiecke oder Trapeze; auch deren Fläche ist eine Strecke. Merke: Die Fläche unter der Kurve im Zeit-Geschwindigkeits-Diagramm ist die zurückgelegte Strecke bzw. die Positionsänderung im betrachteten Zeitabschnitt.</p>
+    <div class="figure lfig"><div id="fig-l-teil"></div><p class="small muted">Abb.: Teilflächen unter einem $v(t)$-Diagramm (Straßenbahn): zwei Dreiecke und ein Rechteck, zusammen die gesamte Strecke.</p></div>
   </div>
   <div id="ex-fl"></div>
   <div class="figure">
@@ -666,6 +675,7 @@ svg.gfx .kz{cursor:pointer}
     <h2>Auch unter Kurven ist die Fläche die Strecke</h2>
     <h3>Kleine Zeitabschnitte</h3>
     <p>Gilt „Fläche = Strecke“ auch, wenn die Geschwindigkeit nicht konstant ist? Ob man eine Geschwindigkeit als konstant ansehen kann, hängt nur von der Länge des Zeitabschnitts ab. In 60 s ändert sich die Geschwindigkeit stark; in 5 s schon viel weniger; in sehr kleinen Zeitabschnitten praktisch gar nicht mehr. Das kennst du von der Momentangeschwindigkeit aus LE 2.1b. Teilt man die Fahrt in sehr kleine Abschnitte, wird die Treppe immer feiner und schmiegt sich an die reale Kurve an. Unter jeder Stufe ist die Fläche die Strecke dieses kleinen Abschnitts; zusammen ergeben sie die ganze Strecke. Also gilt auch für gekrümmte Kurven: <b>Fläche unter der Kurve = Positionsänderung</b>.</p>
+    <div class="figure lfig"><div id="fig-l-fein"></div><p class="small muted">Abb.: Mit kleinen Zeitabschnitten (hier 5 s) schmiegt sich die Treppe an die reale Kurve an. Die Rechtecke zusammen sind wieder 900 m.</p></div>
     <h3>Kästchen zählen</h3>
     <p>Die Fläche unter einer gekrümmten Kurve kannst du näherungsweise bestimmen, indem du die <b>Kästchen</b> des Gitters unter der Kurve zählst. Jedes Kästchen hat dieselbe Fläche und steht damit für eine bestimmte Strecke, den <b>Kästchenwert</b>. Im Video ist ein Kästchen 1,25 m/s hoch und 20 s breit: $1,25 m/s · 20 s = 25 m$. Volle Kästchen zählen ganz; angeschnittene zählst du, wenn sie mindestens halb unter der Kurve liegen. Zwischen 15:02 und 15:03 Uhr sind es etwa 36 Kästchen, also $36 · 25 m = 900 m$, genau wie aus dem $s(t)$-Diagramm.</p>
     <div class="fbox fl"><p class="fcap">Kästchen zählen</p>$$Δs ≈ \text{Anzahl} · Δv_{Kästchen} · Δt_{Kästchen}$$</div>
@@ -2555,7 +2565,34 @@ function strasse(host, o){
     setFz(list){ while(fzLayer.firstChild) fzLayer.removeChild(fzLayer.firstChild);
       list.forEach(f => { const x = X(f.s); if(x < -40 || x > W + 40) return; fz(fzLayer, defs, f.typ, x, f.y || (f.dir > 0 ? SPUR.r : SPUR.l), f.dir, f.farbe, f.nr); }); }};
 }
-Object.assign(window.KIN = window.KIN || {}, {strasse, fz, SPUR});
+/* v0.3 (17.11.2026, Lehrkraft: „Immer wenn sinnvoll Abbildungen oder Simulationen/Animationen verwenden!“): Abbildungen in Lesetexten.
+   KIN.film(host, o) = Filmstreifen: dieselbe Straße zu mehreren Zeitpunkten untereinander (wie Einzelbilder eines Videos).
+     o = {w (420), sMin, sMax, tick, lab, unit ("s in m"), aria,
+          marks:[{s, txt, col}] (senkrechte gestrichelte Hilfslinien durch alle Bilder, Text oben),
+          rows:[{t:"t = 0", fz:[{s, typ, farbe, spur:0|1 (0 = untere Spur), dir, txt (Text rechts bzw. links neben dem Fahrzeug)}]}]}
+     Fahrzeuge kleiner als in KIN.strasse (nicht maßstäblich). */
+function film(host, o){
+  const W = o.w || 420, L = 70, R = W - 14, RH = 44, top = (o.marks || []).some(m => m.txt) ? 24 : 6, H = top + o.rows.length*RH + 52;
+  const {svg, defs} = LM.G.svgRoot(host, W, H, o.aria || "Filmstreifen einer Bewegung"); svg.classList.add("big", "strasse");
+  const X = s => L + (R - L)*(s - o.sMin)/(o.sMax - o.sMin), P = KIN.paints(defs);
+  o.rows.forEach((r, i) => { const y = top + i*RH;
+    add(svg, "rect", {x:L - 4, y:y + 4, width:R - L + 8, height:32, rx:3, fill:P.asphalt});
+    add(svg, "line", {x1:L - 4, x2:R + 4, y1:y + 20, y2:y + 20, style:"stroke:#f4f4f4;stroke-width:1;stroke-dasharray:8 6"});
+    T(svg, L - 10, y + 25, r.t, "lbl-s", {"text-anchor":"end", style:"font-weight:600"});
+    (r.fz || []).forEach(f => { const yy = y + (f.spur ? 12 : 28), x = X(f.s), dir = f.dir || 1, g = add(svg, "g", {transform:`translate(${x},${yy}) scale(.62)`});
+      fz(g, defs, f.typ, 0, 0, dir, f.farbe);
+      if(f.txt){ const right = f.links ? false : x < R - 70; const off = f.typ === "lkw" ? 30 : 16; T(svg, x + (right ? off : -off), yy + 5, f.txt, "lbl-s", {"text-anchor":right ? "start" : "end", style:"fill:#fff;font-weight:600;paint-order:stroke;stroke:#30363c;stroke-width:3px"}); } });
+  });
+  const yb = top + o.rows.length*RH + 6, step = o.tick || 10, lab = o.lab || 50;
+  (o.marks || []).forEach(m => { const x = X(m.s); add(svg, "line", {x1:x, x2:x, y1:top - 2, y2:yb, style:`stroke:${m.col || "var(--err)"};stroke-width:1.5;stroke-dasharray:4 3`}); if(m.txt) T(svg, x, top - 8, m.txt, "lbl-s", {"text-anchor":"middle", style:`fill:${m.col || "var(--err)"}`}); });
+  add(svg, "line", {x1:L, x2:R, y1:yb, y2:yb, style:"stroke:var(--ink);stroke-width:1.2"});
+  for(let s = Math.ceil(o.sMin/step)*step; s <= o.sMax + 1e-9; s += step){ const big = Math.abs(s/lab - Math.round(s/lab)) < 1e-6;
+    add(svg, "line", {x1:X(s), x2:X(s), y1:yb, y2:yb + (big ? 7 : 4), style:"stroke:var(--ink);stroke-width:1"});
+    if(big) T(svg, X(s), yb + 22, String(Math.round(s)).replace("-", "−"), "lbl-s", {"text-anchor":"middle"}); }
+  T(svg, R, yb + 42, o.unit || "s in m", "lbl-s", {"text-anchor":"end"});
+  return {svg, defs, X, H, top, RH};
+}
+Object.assign(window.KIN = window.KIN || {}, {strasse, fz, film, SPUR});
 })();
 
 /* ============ Grafiken und Simulationen LE 2.1c Zeit-Geschwindigkeits-Diagramm (v0.1, 17.11.2026) ============
@@ -2928,6 +2965,62 @@ const S11 = t => SEG11.S(t), avg11 = (p, q) => (S11(q) - S11(p))/(q - p);
   const K3 = [[0,20],[5,15],[25,25],[30,20],[50,20],[55,25],[65,25],[80,0],[95,15],[100,15],[110,20]];
   const d = diag(host, Object.assign({}, BIG, {t:[0,110,5,10], s:[0,35,2.5,5], tTitle:"t in s", sTitle:"v in m/s", aria:"Geschwindigkeitsprofil einer Autofahrt über 110 s (Skript-Aufgabe 3) mit geraden Abschnitten.", cross:{fx:t => f(t,1).replace(",0","")+" s", fy:v => f(v,1)+" m/s"}}));
   const g = d.layer(), Q = ptsK(d, K3); add(g, "path", {d:pathK(d, K3), style:`fill:none;stroke:${INK};stroke-width:2.5`}); d.curves.push({pts:Q, name:"Auto", col:INK});
+  d.cross();
+})();
+})();
+/* ---------------- v0.3 (17.11.2026) Abbildungen in den Lesetexten (Lehrkraft: „Immer wenn sinnvoll Abbildungen oder Simulationen/Animationen verwenden!“) ---------------- */
+(function(){
+"use strict";
+const {diag, add, T, f} = KIN, $ = E.$;
+const RED = "var(--err)", GREEN = "var(--ok)", BLUE = "var(--blue)", INK = "var(--ink)", OCKER = "var(--maybe)";
+const lt = (g, x, y, t, col, anchor="start") => T(g, x, y, t, "lbl-s", {"text-anchor":anchor, style:`fill:${col};font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:3px`});
+const line = (g, x1, y1, x2, y2, st) => add(g, "line", {x1, y1, x2, y2, style:st});
+const dot = (g, x, y, col, r=5) => add(g, "circle", {cx:x, cy:y, r, style:`fill:${col};stroke:var(--surface);stroke-width:1.5`});
+const MINI = {w:420, h:280, L:62, R:404, T:22, B:232};
+const uhr = m => { const h = 14 + Math.floor((55 + m)/60), mi = (55 + m) % 60; return `${h}:${String(mi).padStart(2,"0")}`; };
+const poly = (d, g, P, col, w=2.6, dash) => { const Q = P.map(p => [d.X(p[0]), d.Y(p[1])]); add(g, "path", {d:d.path(Q), style:`fill:none;stroke:${col};stroke-width:${w};${dash ? "stroke-dasharray:" + dash : ""}`}); d.curves.push({pts:Q, col}); return Q; };
+
+const GPS_S = KIN.GPS_S, SEG11 = KIN.SEG11;
+(function(){
+  const host = $("#fig-l-sprung"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[50,70,1,5], s:[0,30,1,5], tTitle:"t in s", sTitle:"v in m/s", cross:{fx:v => f(v,1)+" s", fy:v => f(v,1)+" m/s"},
+    aria:"Ausschnitt der v(t)-Treppe am Übergang von 10 m/s auf 20 m/s bei 60 s: senkrechte Kante (unmöglich, Änderung in 0 s) und gestrichelt ein realer Übergang über einige Sekunden."}));
+  const g = d.layer(), gl = d.layer(false);
+  poly(d, g, [[50,10],[60,10],[60,20],[70,20]], OCKER, 3);
+  const R = t => t < 56 ? 10 : t > 64 ? 20 : 15 - 5*Math.cos(Math.PI*(t - 56)/8); poly(d, g, d.pts(R, 50, 70, 160).map(p => [d.tv(p[0]), d.sv(p[1])]), RED, 2.6, "7 4");
+  lt(gl, d.X(50.3), d.Y(27), "senkrecht: Änderung in 0 s – unmöglich", OCKER); lt(gl, d.X(69.5), d.Y(15), "real: dauert einige Sekunden", RED, "end");
+  d.cross();
+})();
+(function(){
+  const host = $("#fig-l-rechteck"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,60,5,10], s:[0,20,1,5], tTitle:"t in s nach 15:02:00 Uhr", sTitle:"v in m/s", cross:{fx:v => f(v,0)+" s", fy:v => f(v,1)+" m/s"},
+    aria:"Stufe der v(t)-Treppe von Marker (11) nach (12): 15 m/s über 60 s; das Rechteck darunter hat die Fläche 15 m/s mal 60 s gleich 900 m."}));
+  const g = d.layer(), gl = d.layer(false);
+  add(g, "rect", {x:d.X(0), y:d.Y(15), width:d.X(60) - d.X(0), height:d.Y(0) - d.Y(15), style:`fill:${BLUE};fill-opacity:.15`});
+  poly(d, g, [[0,15],[60,15]], OCKER, 3);
+  lt(gl, d.X(30), d.Y(8), "Fläche = 15 m/s · 60 s = 900 m", BLUE, "middle"); lt(gl, d.X(30), d.Y(15) - 8, "Höhe: v = 15 m/s", OCKER, "middle"); lt(gl, d.X(30), d.Y(1.5), "Breite: Δt = 60 s", INK, "middle");
+  d.cross();
+})();
+(function(){
+  const host = $("#fig-l-teil"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,70,5,10], s:[0,15,1,5], tTitle:"t in s", sTitle:"v in m/s", cross:{fx:v => f(v,0)+" s", fy:v => f(v,1)+" m/s"},
+    aria:"v(t)-Diagramm einer Straßenbahn: Dreieck 0 bis 15 s (90 m), Rechteck 15 bis 55 s bei 12 m/s (480 m), Dreieck 55 bis 65 s (60 m); zusammen 630 m."}));
+  const g = d.layer(), gl = d.layer(false);
+  [[[0,0],[15,12],[15,0]], [[15,0],[15,12],[55,12],[55,0]], [[55,0],[55,12],[65,0]]].forEach((P, i) => add(g, "path", {d:d.path(P.map(p => [d.X(p[0]), d.Y(p[1])])) + " Z", style:`fill:${[GREEN, BLUE, RED][i]};fill-opacity:.18;stroke:none`}));
+  poly(d, g, [[0,0],[15,12],[55,12],[65,0],[70,0]], OCKER, 3);
+  lt(gl, d.X(10), d.Y(3), "90 m", GREEN, "middle"); lt(gl, d.X(35), d.Y(6), "12 m/s · 40 s = 480 m", BLUE, "middle"); lt(gl, d.X(58.5), d.Y(3), "60 m", RED, "middle");
+  lt(gl, d.X(35), d.Y(14), "zusammen: 630 m", INK, "middle");
+  d.cross();
+})();
+(function(){
+  const host = $("#fig-l-fein"); if(!host) return;
+  const d = diag(host, Object.assign({}, MINI, {t:[0,60,5,10], s:[0,35,1,5], tTitle:"t in s nach 15:02:00 Uhr", sTitle:"v in m/s", cross:{fx:v => f(v,1)+" s", fy:v => f(v,1)+" m/s"},
+    aria:"Realer Geschwindigkeitsverlauf (rot) zwischen 15:02 und 15:03 Uhr mit einer Treppe aus 5-s-Stufen (blau), die sich der Kurve gut anschmiegt; die Summe der Rechtecke ist 900 m."}));
+  const g = d.layer(), gl = d.layer(false), P = [];
+  for(let t=0; t<60; t+=5){ const v = (SEG11.S(t + 5) - SEG11.S(t))/5; P.push([t, v], [t + 5, v]);
+    add(g, "rect", {x:d.X(t), y:d.Y(v), width:d.X(t + 5) - d.X(t), height:d.Y(0) - d.Y(v), style:`fill:${BLUE};fill-opacity:.12;stroke:${BLUE};stroke-width:1`}); }
+  poly(d, g, d.pts(SEG11.V, 0, 60, 240).map(p => [d.tv(p[0]), d.sv(p[1])]), RED, 2.6);
+  lt(gl, d.X(59), d.Y(33), "Stufen je 5 s: Summe der Rechtecke = 900 m", BLUE, "end");
   d.cross();
 })();
 })();
