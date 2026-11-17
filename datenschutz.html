@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<title>Datenschutzerklärung – Maschinenbau</title>
+<title>Datenschutzerklärung – Physik</title>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -264,6 +264,12 @@ body.lm-gated{overflow:hidden}
 .saved.warn .linkbtn{color:#fff; text-decoration:underline; font-weight:800}
 @media (max-width:560px){ .lm-gate-card{padding:20px 18px} .lm-gate-card h2{font-size:20px} }
 
+.lm-name{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.lm-name label{display:flex; flex-direction:column; gap:4px; font-weight:600}
+.lm-name input{font:inherit; font-weight:400; padding:10px 12px; border:2px solid var(--line, #888); border-radius:8px; background:var(--bg); color:var(--ink); min-width:0}
+.lm-name input:focus{outline:3px solid var(--blue); outline-offset:1px}
+.lm-name .pflicht{color:var(--err, #c0392b)}
+@media (max-width:560px){ .lm-name{grid-template-columns:1fr} }
 .lm-gate-card.ok{border-top-color:var(--ok)} .lm-gate-card .no.ok{background:var(--ok)}
 body.lm-gated .site-head, body.lm-gated header.top, body.lm-gated main, body.lm-gated .site-foot{visibility:hidden}
 
@@ -308,7 +314,7 @@ main.recht th{background:var(--surface2)}
 <div class="site-head">
   <div class="site-inner">
     
-    <div class="unit"><span class="unit-k">Technisches Gymnasium</span><span class="brand">Maschinenbau · Datenschutz</span></div>
+    <div class="unit"><span class="unit-k">Technische Oberschule</span><span class="brand">Physik · Datenschutz</span></div>
     <a class="lm-back" href="index.html">← Alle Lerneinheiten</a>
   </div>
 </div>
@@ -335,7 +341,7 @@ main.recht th{background:var(--surface2)}
   <h2 id="verantwortlich">1. Verantwortlicher</h2>
   <p>Verantwortlich für die Datenverarbeitung auf dieser Website im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
   <p>Andreas Höfler<br>Rosenstr. 94<br>76287 Rheinstetten<br>Deutschland<br>E-Mail: <a href="mailto:info@ahoefler.de">info@ahoefler.de</a></p>
-  <p>Diese Website ist ein Lernangebot (interaktive Lerneinheiten) für das Fach Maschinenbau. Es gibt keine Anmeldung, kein Benutzerkonto und keine Eingabefelder, deren Inhalt an einen Server gesendet wird.</p>
+  <p>Diese Website ist ein Lernangebot (interaktive Lerneinheiten) für das Fach Physik. Es gibt keine Anmeldung, kein Benutzerkonto und keine Eingabefelder, deren Inhalt an einen Server gesendet wird.</p>
 
   <h2 id="cookies">2. Keine Cookies, kein Tracking</h2>
   <p>Diese Website setzt <b>grundsätzlich keine Cookies</b>, weder eigene noch Cookies von Dritten. Es werden keine Analyse- oder Statistikdienste (z. B. Google Analytics), keine Werbenetzwerke, keine Social-Media-Plugins, keine extern geladenen Schriftarten (z. B. Google Fonts) und keine Content-Delivery-Networks (CDN) eingesetzt. Alle Schriften, Grafiken, Formeln und Programme sind in den Seiten selbst enthalten.</p>
@@ -409,7 +415,7 @@ main.recht th{background:var(--surface2)}
   <p class="small muted">Siehe auch das <a href="impressum.html">Impressum</a>.</p>
 </main>
 
-<footer class="site-foot">Technisches Gymnasium · Maschinenbau</footer>
+<footer class="site-foot">Technische Oberschule · Physik</footer>
 
 <script>
 /* ============================================================
@@ -427,7 +433,7 @@ const SITE = "https://lernplattform.github.io/Produktionstechnologie/";
 const ONLINE = /^https?:$/.test(location.protocol);
 const PROBE = /lm-probe/.test(location.hash) || window.top !== window;
 if(PROBE) return;
-const base = "";   /* Maschinenbau: Impressum/Datenschutz liegen immer im selben Ordner */
+const base = "";   /* Physik: Impressum/Datenschutz liegen immer im selben Ordner */
 const IMP = base + "impressum.html", DS = base + "datenschutz.html";
 const KEY = "lm-hinweis", VER = "1";
 

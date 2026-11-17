@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<title>Maschinenbau – Übersicht der Lerneinheiten</title>
+<title>Physik – Lerneinheiten und Übungsaufgaben</title>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -264,6 +264,12 @@ body.lm-gated{overflow:hidden}
 .saved.warn .linkbtn{color:#fff; text-decoration:underline; font-weight:800}
 @media (max-width:560px){ .lm-gate-card{padding:20px 18px} .lm-gate-card h2{font-size:20px} }
 
+.lm-name{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.lm-name label{display:flex; flex-direction:column; gap:4px; font-weight:600}
+.lm-name input{font:inherit; font-weight:400; padding:10px 12px; border:2px solid var(--line, #888); border-radius:8px; background:var(--bg); color:var(--ink); min-width:0}
+.lm-name input:focus{outline:3px solid var(--blue); outline-offset:1px}
+.lm-name .pflicht{color:var(--err, #c0392b)}
+@media (max-width:560px){ .lm-name{grid-template-columns:1fr} }
 .lm-gate-card.ok{border-top-color:var(--ok)} .lm-gate-card .no.ok{background:var(--ok)}
 body.lm-gated .site-head, body.lm-gated header.top, body.lm-gated main, body.lm-gated .site-foot{visibility:hidden}
 
@@ -346,11 +352,17 @@ body.gated main, body.gated .site-foot{visibility:hidden}
 @media (max-width:700px){ .ov-total{grid-template-columns:1fr} }
 @media (max-width:560px){ .units{grid-template-columns:1fr} .chapter-h h2{font-size:19px} .ov-total{padding:16px} }
 @media print{ #gate, .ov-src, .ov-hint, .site-foot{display:none!important} .le{break-inside:avoid} }
+
+/* Reiter Lerneinheiten / Übungsaufgaben (17.11.2026) */
+.ov-tabs{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 14px}
+.ov-tab{font:inherit; font-size:16px; font-weight:600; padding:10px 18px; border-radius:999px; border:2px solid var(--blue); background:var(--surface); color:var(--blue); cursor:pointer}
+.ov-tab[aria-selected="true"]{background:var(--blue); color:#fff}
+.ov-tab:focus-visible{outline:3px solid var(--blue); outline-offset:2px}
 </style>
 <div class="site-head">
   <div class="site-inner">
     
-    <div class="unit"><span class="unit-k">Technisches Gymnasium</span><span class="brand">Maschinenbau · Alle Lerneinheiten</span></div>
+    <div class="unit"><span class="unit-k">Technische Oberschule</span><span class="brand">Physik · Lerneinheiten und Übungsaufgaben</span></div>
   </div>
 </div>
 
@@ -359,8 +371,13 @@ body.gated main, body.gated .site-foot{visibility:hidden}
 <main id="ov">
   <section class="ov-intro">
     <p class="eyebrow">Übersicht</p>
-    <h1>Deine Lerneinheiten in Maschinenbau</h1>
-    <p class="lead">Hier siehst du alle Lerneinheiten in der Reihenfolge des Lehrplans. Der Balken zeigt, wie viele Stationen du schon erledigt hast. Er wird aus deinen Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) gelesen.</p>
+    <h1>Physik an der Technischen Oberschule</h1>
+    <div class="ov-tabs" role="tablist" aria-label="Bereich wählen">
+      <button type="button" role="tab" class="ov-tab" data-ovtab="le" aria-selected="true">📘 Lerneinheiten</button>
+      <button type="button" role="tab" class="ov-tab" data-ovtab="ue" aria-selected="false">✏️ Übungsaufgaben</button>
+    </div>
+    <p class="lead" data-ovtext="le">In den <b>Lerneinheiten</b> erarbeitest du den Stoff, interaktiv und mit Simulationen, in der Reihenfolge des Lehrplans. Der Balken zeigt, wie viele Stationen du schon erledigt hast. Er wird aus deinen Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) gelesen.</p>
+    <p class="lead" data-ovtext="ue" hidden>Die <b>Übungsaufgaben</b> sind je Themenblock gestuft von den Grundlagen bis zum Prüfungsniveau, mit Zettel und Stift wie in der Prüfung: für Übungsstunden und zur Vorbereitung auf Klassenarbeiten. Ergebnis prüfen, Lösung vergleichen, Punkte und Note zur Orientierung.</p>
   </section>
 
   <section class="ov-total" aria-labelledby="total-h">
@@ -387,13 +404,14 @@ body.gated main, body.gated .site-foot{visibility:hidden}
   <p class="small muted ov-hint">Tipp: Du kannst Speicherdateien (<span class="mono">.txt</span>) auch einfach auf diese Seite ziehen. Jede Lerneinheit funktioniert weiterhin auch allein, ohne diese Übersicht.</p>
 </main>
 
-<footer class="site-foot">Technisches Gymnasium · Maschinenbau</footer>
+<footer class="site-foot">Technische Oberschule · Physik</footer>
 <div class="dropmsg" aria-hidden="true">Speicherdateien hier ablegen</div>
 
 <script>
-const DATA = {"chapters": [{"no": "1", "title": "Technische Kommunikation"}, {"no": "2", "title": "Fertigungstechnik"}, {"no": "3", "title": "Werkstoffkunde"}, {"no": "4", "title": "Pneumatik"}], "units": [{"nr": "1.4", "title": "Prüfen, Messen, Lehren", "file": "Lehrplaneinheit_1.4_Pruefen_Messen_Lehren.html", "id": "lpe-1.4"}, {"nr": "1", "title": "Wiederholung – Klausurvorbereitung Technische Kommunikation", "file": "Lehrplaneinheit_1_Wiederholung_Technische_Kommunikation.html", "id": "lpe-1-wdh", "sort": "1.99"}], "soon": []};
+const DATA = {"chapters": [{"no": "2", "title": "Kinematik und Dynamik"}, {"no": "3", "title": "Erhaltungssätze"}, {"no": "4", "title": "Elektrische und magnetische Felder"}, {"no": "5", "title": "Geladene Teilchen in Feldern"}, {"no": "8", "title": "Elektromagnetische Induktion"}, {"no": "9", "title": "Schwingungen und Wellen"}, {"no": "10", "title": "Licht"}, {"no": "11", "title": "Fotoeffekt"}], "units": [{"kind": "le", "nr": "2.1a", "title": "Geschwindigkeit", "file": "Lehrplaneinheit_2.1a_Geschwindigkeit.html", "id": "lpe-2.1a"}, {"kind": "le", "nr": "2.1b", "title": "Zeit-Weg-Diagramm", "file": "Lehrplaneinheit_2.1b_Zeit-Weg-Diagramm.html", "id": "lpe-2.1b"}, {"kind": "ue", "nr": "2.1", "title": "Geschwindigkeit und gleichförmige Bewegung", "file": "Uebungen_2.1_Geschwindigkeit_und_gleichfoermige_Bewegung.html", "id": "ueb-2.1"}], "soon": [{"nr": "2.1b", "title": "Zeit-Weg-Diagramm"}, {"nr": "2.1c", "title": "Zeit-Geschwindigkeits-Diagramm"}, {"nr": "2.1d", "title": "Gleichförmige Bewegung"}, {"nr": "2.2a", "title": "Beschleunigung"}, {"nr": "2.2b", "title": "Zeit-Beschleunigungs-Diagramm"}, {"nr": "2.2c", "title": "Beschleunigung aus der Ruhe"}, {"nr": "2.2d", "title": "Beschleunigung mit Anfangsgeschwindigkeit"}, {"nr": "2.2e", "title": "Bewegungen im Koordinatensystem"}, {"nr": "2.3a", "title": "Überlagerung von Bewegungen"}, {"nr": "2.3b", "title": "Freier Fall"}, {"nr": "2.3c", "title": "Senkrechter Wurf"}, {"nr": "2.3d", "title": "Waagrechter Wurf"}, {"nr": "2.3e", "title": "Waagrechter Wurf – Anwendungen"}, {"nr": "2.4a", "title": "Kräfte und Kraftmessung"}, {"nr": "2.4b", "title": "Hookesches Gesetz"}, {"nr": "2.4c", "title": "Masse und Gewichtskraft"}, {"nr": "2.4d", "title": "Newtonsche Axiome"}, {"nr": "2.4e", "title": "Addition von Kräften"}, {"nr": "2.4f", "title": "Zerlegung von Kräften"}, {"nr": "2.4g", "title": "Schiefe Ebene und Freimachen"}, {"nr": "2.4h", "title": "Reibungskräfte"}, {"nr": "2.4i", "title": "Reibung auf der schiefen Ebene"}, {"nr": "2.5a", "title": "Grundgesetz der Mechanik"}, {"nr": "2.5b", "title": "Dynamik mit Reibung"}, {"nr": "2.5c", "title": "Gekoppelte Körper"}, {"nr": "2.6a", "title": "Gleichförmige Kreisbewegung"}, {"nr": "2.6b", "title": "Zentripetalkraft"}, {"nr": "2.6c", "title": "Kurvenfahrt"}, {"nr": "2.6d", "title": "Kettenkarussell und Kegelpendel"}, {"nr": "2.6e", "title": "Looping und Ablöseprobleme"}, {"nr": "3.1a", "title": "Mechanische Arbeit"}, {"nr": "3.1b", "title": "Arbeit im F-s-Diagramm"}, {"nr": "3.1c", "title": "Energieformen"}, {"nr": "3.1d", "title": "Energieerhaltungssatz"}, {"nr": "3.1e", "title": "Energiebilanzen mit Reibung"}, {"nr": "3.1f", "title": "Energie und Kreisbewegung"}, {"nr": "3.1g", "title": "Leistung und Wirkungsgrad"}, {"nr": "3.2a", "title": "Impuls und Kraftstoß"}, {"nr": "3.2b", "title": "Impulserhaltung und unelastischer Stoß"}, {"nr": "3.2c", "title": "Elastischer und realer Stoß"}, {"nr": "4.1a", "title": "Elektrischer Stromkreis"}, {"nr": "4.1b", "title": "Elektrische Energie und Leistung"}, {"nr": "4.1c", "title": "Verzweigter Stromkreis"}, {"nr": "4.1d", "title": "Gemischte Schaltungen"}, {"nr": "4.2a", "title": "Elektrische Ladung"}, {"nr": "4.2b", "title": "Coulombsches Gesetz"}, {"nr": "4.2c", "title": "Kräfte mehrerer Ladungen"}, {"nr": "4.2d", "title": "Elektrisches Feld"}, {"nr": "4.2e", "title": "Radialsymmetrische Felder"}, {"nr": "4.2f", "title": "Spannung und Potential"}, {"nr": "4.2g", "title": "Homogenes Feld im Plattenkondensator"}, {"nr": "4.3a", "title": "Kapazität und Plattenkondensator"}, {"nr": "4.3b", "title": "Dielektrikum"}, {"nr": "4.3c", "title": "Kondensatorschaltungen"}, {"nr": "4.3d", "title": "Energie des Kondensators"}, {"nr": "4.4a", "title": "Magnetische Grundbegriffe"}, {"nr": "4.4b", "title": "Magnetfeld von Strömen"}, {"nr": "4.4c", "title": "Kraft auf stromdurchflossene Leiter"}, {"nr": "4.4d", "title": "Magnetische Flussdichte"}, {"nr": "4.4e", "title": "Lange Spule"}, {"nr": "4.4f", "title": "Materie im Magnetfeld"}, {"nr": "5.1a", "title": "Elektronen im Längsfeld"}, {"nr": "5.1b", "title": "Ablenkung im Querfeld"}, {"nr": "5.2a", "title": "Lorentzkraft"}, {"nr": "5.2b", "title": "Kreisbahnen im Magnetfeld"}, {"nr": "5.3a", "title": "Geschwindigkeitsfilter und Massenspektrometer"}, {"nr": "8.1a", "title": "Induktion im bewegten Leiter"}, {"nr": "8.1b", "title": "Magnetischer Fluss"}, {"nr": "8.2a", "title": "Allgemeines Induktionsgesetz"}, {"nr": "8.2b", "title": "Lenzsche Regel"}, {"nr": "8.3a", "title": "Erzeugung von Wechselspannung"}, {"nr": "8.4a", "title": "Selbstinduktion"}, {"nr": "8.4b", "title": "Ein- und Ausschaltvorgang"}, {"nr": "9.1a", "title": "Schwingungen – Grundbegriffe"}, {"nr": "9.1b", "title": "Federpendel"}, {"nr": "9.1c", "title": "Harmonische Schwingung"}, {"nr": "9.1d", "title": "Fadenpendel"}, {"nr": "9.1e", "title": "Schwingungen in Anwendungen"}, {"nr": "9.1f", "title": "Energie beim harmonischen Oszillator"}, {"nr": "9.1g", "title": "Gedämpfte und erzwungene Schwingungen"}, {"nr": "9.2a", "title": "Fortschreitende Welle"}, {"nr": "9.2b", "title": "Wellenfunktion"}, {"nr": "9.2c", "title": "Reflexion von Wellen"}, {"nr": "9.2d", "title": "Überlagerung und stehende Wellen"}, {"nr": "9.2e", "title": "Huygens, Reflexion und Brechung"}, {"nr": "9.2f", "title": "Interferenz zweier Elementarwellen"}, {"nr": "10.2a", "title": "Interferenz am Doppelspalt"}, {"nr": "10.2b", "title": "Optisches Gitter"}, {"nr": "10.2c", "title": "Gitter in Aufgaben"}, {"nr": "10.2d", "title": "Einzelspalt"}, {"nr": "11.1a", "title": "Fotoeffekt"}, {"nr": "11.1b", "title": "Lichtquanten"}], "soonUe": [{"nr": "2.1", "title": "Geschwindigkeit und gleichförmige Bewegung"}, {"nr": "2.2", "title": "Beschleunigte Bewegung"}, {"nr": "2.3", "title": "Überlagerung, freier Fall und Würfe"}, {"nr": "2.4", "title": "Kräfte und Reibung"}, {"nr": "2.5", "title": "Grundgesetz der Mechanik"}, {"nr": "2.6", "title": "Kreisbewegung"}, {"nr": "3.1", "title": "Arbeit, Energie und Leistung"}, {"nr": "3.2", "title": "Impuls und Stoß"}, {"nr": "4.1", "title": "Stromkreise"}, {"nr": "4.2", "title": "Ladung und elektrisches Feld"}, {"nr": "4.3", "title": "Kondensator"}, {"nr": "4.4", "title": "Magnetfeld"}, {"nr": "5", "title": "Geladene Teilchen in Feldern"}, {"nr": "8", "title": "Elektromagnetische Induktion"}, {"nr": "9.1", "title": "Mechanische Schwingungen"}, {"nr": "9.2", "title": "Mechanische Wellen"}, {"nr": "10", "title": "Licht als Welle"}, {"nr": "11", "title": "Fotoeffekt"}]};
 /* Übersicht aller Lerneinheiten: liest *_Speicherstand.txt aus dem Speicherordner und zeigt den Fortschritt.
-   Erwartet global DATA = {chapters:[{no,title}], units:[{nr,title,file,id}], soon:[{nr,title}]} (von mk_uebersicht.py). */
+   Erwartet global DATA = {chapters:[{no,title}], units:[{kind,nr,title,file,id}], soon:[{nr,title}], soonUe:[{nr,title}]} (von mk_uebersicht.py).
+   Zwei Reiter (17.11.2026): „Lerneinheiten“ (kind le) und „Übungsaufgaben“ (kind ue, Übungsblätter je Themenblock). */
 (function(){
 "use strict";
 const $ = (s, r=document) => r.querySelector(s);
@@ -407,10 +425,11 @@ const IDB = {
   async set(k,v){ try{ const db=await this.open(); await new Promise(res=>{ const t=db.transaction("handles","readwrite"); t.objectStore("handles").put(v,k); t.oncomplete=res; t.onerror=res; }); }catch(e){} }
 };
 /* Einheiten merken sich so, wo die Übersicht liegt (Link „Alle Lerneinheiten“) */
-try { localStorage.setItem("lm-uebersicht-mb", location.href.split("#")[0]); } catch(e){}
+try { localStorage.setItem("lm-uebersicht-ph", location.href.split("#")[0]); } catch(e){}
 
 /* ---------- Daten ---------- */
-const units = DATA.units.map(u => Object.assign({}, u));
+const units = DATA.units.map(u => Object.assign({kind:"le"}, u));
+let TAB = "le"; try { if(location.hash === "#uebungen" || localStorage.getItem("lm-uebersicht-tab") === "ue") TAB = "ue"; } catch(e){}
 const P = {};          // moduleId -> {done,total,ts,file,known}
 let dir = null, perm = "none", source = "", lastRead = null;
 
@@ -450,7 +469,7 @@ async function readDir(){
       if(/\.txt$/i.test(name)){
         const f = await h.getFile(); if(f.size > 3e6) continue;
         if(parseTxt(await f.text(), f.lastModified, name)) n++;
-      } else if(/^Lehrplaneinheit.*\.html$/i.test(name) && !units.some(u => u.file === name)){
+      } else if(/^(Lehrplaneinheit|Uebungen).*\.html$/i.test(name) && !units.some(u => u.file === name)){
         found.push([name, h]);
       }
     } catch(e){}
@@ -459,10 +478,10 @@ async function readDir(){
   for(const [name, h] of found){
     try {
       const t = await (await h.getFile()).text();
-      const id = (t.match(/\bid:"(lpe-[^"]+)"/) || t.match(/MODULE_ID = "([^"]+)"/) || [])[1];
-      const title = ((t.match(/<title>([^<]*)<\/title>/)||[])[1]||name).replace(/^Lehrplaneinheit\s+/, "");
+      const id = (t.match(/\bid:"((?:lpe|ueb)-[^"]+)"/) || t.match(/MODULE_ID = "([^"]+)"/) || [])[1];
+      const title = ((t.match(/<title>([^<]*)<\/title>/)||[])[1]||name).replace(/^(Lehrplaneinheit|Übungen)\s+/, "");
       const nr = (title.match(/^(\d+(?:\.\d+)*[a-z]?)/i)||name.match(/(\d+(?:\.\d+)*[a-z]?)/i)||[])[1] || "";
-      units.push({nr, title: title.replace(nr, "").trim(), file: name, id});
+      units.push({kind: /^Uebungen/i.test(name) ? "ue" : "le", nr, title: title.replace(nr, "").trim(), file: name, id});
     } catch(e){}
   }
   lastRead = new Date();
@@ -499,7 +518,7 @@ function gate(mode){
       <div class="row"><button type="button" class="btn big" data-g="resume">Weiterarbeiten</button><button type="button" class="btn secondary" data-g="connect">Anderen Ordner wählen</button></div>`;
   } else if(mode === "nofs"){
     body = `<h2 id="gate-h"><span class="no">0</span>Speicherdateien laden</h2>
-      <p>Dein Browser kann keinen Ordner auslesen (z. B. Firefox, Safari, iPad). Lade deine Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) von Hand, du kannst mehrere auf einmal wählen. Oder ziehe sie auf diese Seite.</p>
+      <p>Dein Browser kann keinen Ordner auslesen (z. B. Firefox, Safari, iPad). Lade deine Speicherdateien (<span class="mono">…_Speicherstand.txt</span>) von Hand, du kannst mehrere auf einmal wählen. Oder zieh sie auf diese Seite.</p>
       <p class="small muted">Am PC mit <b>Chrome oder Edge</b> geht es automatisch.</p>
       <div class="row"><label class="filebtn" for="gate-load">Speicherdateien laden</label><input type="file" id="gate-load" accept=".txt,text/plain" multiple class="visually-hidden"><button type="button" class="linkbtn" data-g="skip">Ohne Speicherdateien weiter</button></div>`;
   } else {
@@ -587,19 +606,19 @@ function card(u){
   const foot = s.ts ? `zuletzt ${dt(s.ts)}` : "noch nicht begonnen";
   const hint = s.pct == null && P[u.id] && P[u.id].probing ? `<span class="small muted">Stand wird ermittelt …</span>` : "";
   return `<a class="le ${s.cls}" href="${encodeURI(u.file)}" data-id="${esc(u.id||"")}">
-    <div class="le-k"><span class="le-no">LPE ${esc(u.nr)}</span><span class="chip ${s.cls}">${s.chip}</span></div>
+    <div class="le-k"><span class="le-no">${u.kind==="ue"?"Übungen":"LPE"} ${esc(u.nr)}</span><span class="chip ${s.cls}">${s.chip}</span></div>
     <h3>${esc(u.title)}</h3>
     <div class="le-bar">${bar}<span class="le-frac">${s.frac}</span></div>${hint}
     <div class="le-foot"><span>${foot}</span><span class="go">Öffnen →</span></div>
   </a>`;
 }
 function render(){
-  const list = units.slice().sort((a,b) => cmp(a.sort || a.nr, b.sort || b.nr));   /* sort: eigene Position (z. B. Wiederholung ans Kapitelende) */
-  const soon = DATA.soon.filter(s => !list.some(u => u.nr === s.nr || cmp(u.nr.replace(/[a-z]+$/i,""), s.nr) === 0 || u.nr.startsWith(s.nr + ".")));
+  const list = units.filter(u => u.kind === TAB).slice().sort((a,b) => cmp(a.sort || a.nr, b.sort || b.nr));   /* sort: eigene Position (z. B. Wiederholung ans Kapitelende) */
+  const soon = (TAB === "ue" ? (DATA.soonUe||[]) : DATA.soon).filter(s => !list.some(u => u.nr === s.nr || cmp(u.nr.replace(/[a-z]+$/i,""), s.nr) === 0 || u.nr.startsWith(s.nr + ".")));
   const ch = DATA.chapters.map(c => {
     const us = list.filter(u => u.nr.split(".")[0] === c.no), ss = soon.filter(s => s.nr.split(".")[0] === c.no);
     if(!us.length && !ss.length) return "";
-    const items = [...us.map(u => ({nr:u.sort || u.nr, html:card(u)})), ...ss.map(s => ({nr:s.nr, html:`<div class="le soon" aria-disabled="true"><div class="le-k"><span class="le-no">LPE ${esc(s.nr)}</span><span class="chip">folgt</span></div><h3>${esc(s.title)}</h3></div>`}))].sort((a,b) => cmp(a.nr, b.nr));
+    const items = [...us.map(u => ({nr:u.sort || u.nr, html:card(u)})), ...ss.map(s => ({nr:s.nr, html:`<div class="le soon" aria-disabled="true"><div class="le-k"><span class="le-no">${TAB==="ue"?"Übungen":"LPE"} ${esc(s.nr)}</span><span class="chip">folgt</span></div><h3>${esc(s.title)}</h3></div>`}))].sort((a,b) => cmp(a.nr, b.nr));
     const done = us.filter(u => stateOf(u).pct === 100).length;
     return `<section class="chapter"><div class="chapter-h"><span class="no">${esc(c.no)}</span><h2>${esc(c.title)}</h2><span class="cnt">${us.length ? `${done} von ${us.length} erledigt` : "folgt"}</span></div><div class="units">${items.map(i => i.html).join("")}</div></section>`;
   }).join("");
@@ -610,7 +629,10 @@ function render(){
   const done = list.filter(u => stateOf(u).pct === 100).length, started = list.filter(u => P[u.id]).length;
   const tb = $("#total-bar"); tb.firstElementChild.style.width = total + "%"; tb.setAttribute("aria-valuenow", total); tb.classList.toggle("full", total === 100);
   $("#total-pct").textContent = total + " %";
-  $("#total-sub").textContent = `${done} von ${list.length} Lerneinheiten erledigt · ${started} begonnen`;
+  $("#total-sub").textContent = `${done} von ${list.length} ${TAB==="ue"?"Übungsblättern":"Lerneinheiten"} erledigt · ${started} begonnen`;
+  $("#total-h").textContent = TAB==="ue" ? "Dein Fortschritt bei den Übungsaufgaben" : "Dein Fortschritt bei den Lerneinheiten";
+  document.querySelectorAll("[data-ovtab]").forEach(b => b.setAttribute("aria-selected", b.dataset.ovtab === TAB ? "true" : "false"));
+  document.querySelectorAll("[data-ovtext]").forEach(e => e.hidden = e.dataset.ovtext !== TAB);
   const src = $("#src");
   src.textContent = source || (Object.keys(P).length ? "Stand aus diesem Browser" : "Noch keine Speicherdateien gelesen");
   src.className = "small " + (dir && perm === "granted" ? "ok" : "warn");
@@ -620,6 +642,7 @@ function render(){
 }
 
 /* ---------- Start ---------- */
+document.addEventListener("click", e => { const b = e.target.closest("[data-ovtab]"); if(!b) return; TAB = b.dataset.ovtab; try { localStorage.setItem("lm-uebersicht-tab", TAB); history.replaceState(null, "", TAB === "ue" ? "#uebungen" : "#"); } catch(e){} render(); });
 (async function init(){
   fromBrowser(); render();
   if(!FS_OK){ gate("nofs"); return; }
@@ -649,7 +672,7 @@ const SITE = "https://lernplattform.github.io/Produktionstechnologie/";
 const ONLINE = /^https?:$/.test(location.protocol);
 const PROBE = /lm-probe/.test(location.hash) || window.top !== window;
 if(PROBE) return;
-const base = "";   /* Maschinenbau: Impressum/Datenschutz liegen immer im selben Ordner */
+const base = "";   /* Physik: Impressum/Datenschutz liegen immer im selben Ordner */
 const IMP = base + "impressum.html", DS = base + "datenschutz.html";
 const KEY = "lm-hinweis", VER = "1";
 

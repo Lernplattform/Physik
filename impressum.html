@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<title>Impressum – Maschinenbau</title>
+<title>Impressum – Physik</title>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -264,6 +264,12 @@ body.lm-gated{overflow:hidden}
 .saved.warn .linkbtn{color:#fff; text-decoration:underline; font-weight:800}
 @media (max-width:560px){ .lm-gate-card{padding:20px 18px} .lm-gate-card h2{font-size:20px} }
 
+.lm-name{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.lm-name label{display:flex; flex-direction:column; gap:4px; font-weight:600}
+.lm-name input{font:inherit; font-weight:400; padding:10px 12px; border:2px solid var(--line, #888); border-radius:8px; background:var(--bg); color:var(--ink); min-width:0}
+.lm-name input:focus{outline:3px solid var(--blue); outline-offset:1px}
+.lm-name .pflicht{color:var(--err, #c0392b)}
+@media (max-width:560px){ .lm-name{grid-template-columns:1fr} }
 .lm-gate-card.ok{border-top-color:var(--ok)} .lm-gate-card .no.ok{background:var(--ok)}
 body.lm-gated .site-head, body.lm-gated header.top, body.lm-gated main, body.lm-gated .site-foot{visibility:hidden}
 
@@ -308,7 +314,7 @@ main.recht th{background:var(--surface2)}
 <div class="site-head">
   <div class="site-inner">
     
-    <div class="unit"><span class="unit-k">Technisches Gymnasium</span><span class="brand">Maschinenbau · Impressum</span></div>
+    <div class="unit"><span class="unit-k">Technische Oberschule</span><span class="brand">Physik · Impressum</span></div>
     <a class="lm-back" href="index.html">← Alle Lerneinheiten</a>
   </div>
 </div>
@@ -341,7 +347,7 @@ main.recht th{background:var(--surface2)}
   <p class="small muted">Siehe auch die <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
 </main>
 
-<footer class="site-foot">Technisches Gymnasium · Maschinenbau</footer>
+<footer class="site-foot">Technische Oberschule · Physik</footer>
 
 <script>
 /* ============================================================
@@ -359,7 +365,7 @@ const SITE = "https://lernplattform.github.io/Produktionstechnologie/";
 const ONLINE = /^https?:$/.test(location.protocol);
 const PROBE = /lm-probe/.test(location.hash) || window.top !== window;
 if(PROBE) return;
-const base = "";   /* Maschinenbau: Impressum/Datenschutz liegen immer im selben Ordner */
+const base = "";   /* Physik: Impressum/Datenschutz liegen immer im selben Ordner */
 const IMP = base + "impressum.html", DS = base + "datenschutz.html";
 const KEY = "lm-hinweis", VER = "1";
 
