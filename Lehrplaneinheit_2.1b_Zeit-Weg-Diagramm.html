@@ -460,7 +460,7 @@ input.err{border-color:var(--err)!important; background:var(--err-soft)}
 svg.gfx.big .lbl-s{font-size:14px}
 svg.gfx.big .lbl{font-size:16px}
 .bubble{position:relative; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:15px; font-style:italic}
-.bubble span{display:block; font-style:normal; margin-top:4px; font-size:13px; color:var(--muted)}
+.bubble > span:not(.katex){display:block; font-style:normal; margin-top:4px; font-size:13px; color:var(--muted)}   /* v0.5 (17.11.2026): nur direkte Kinder, sonst zerfällt KaTeX in der Sprechblase */
 .input h3{margin:18px 0 6px; font-size:18px} .input h3:first-of-type{margin-top:10px}
 .ctrl table{border-collapse:collapse} .ctrl table td,.ctrl table th{padding:3px 10px; text-align:right; font-variant-numeric:tabular-nums}
 @media (max-width:520px){ .ctrl .readout{grid-template-columns:1fr; gap:0 12px} .ctrl .readout b{margin-bottom:6px} }
@@ -2177,6 +2177,7 @@ const PAINT = {
   gruen: [[0,"#0b3a20"],[.35,"#2f9e5b"],[.55,"#8fdcae"],[.75,"#1f7a44"],[1,"#0b3a20"]],   // v0.2 (17.11.2026) für LE 2.1d
   grau: [[0,"#4a535c"],[.35,"#aeb7bf"],[.55,"#e4e9ed"],[.75,"#8c959e"],[1,"#3f474f"]],
   glas: [[0,"#b9dcf2",.95],[.5,"#5d8fb3",.95],[1,"#2c4f6b",.95]],
+  glasD: [[0,"#6d8ca3"],[.45,"#3a5164"],[1,"#1c2731"]],                                     // v0.3 (17.11.2026): dunkle Scheiben (Kontrast auch beim blauen Auto)
   reifen: [[0,"#555"],[.6,"#222"],[1,"#000"]],
   felge: [[0,"#f4f6f8"],[.5,"#aab3bb"],[1,"#5c656d"]],
   asphalt: [[0,"#6b7177"],[.5,"#5a6066"],[1,"#4d5257"]]
@@ -2198,8 +2199,8 @@ function wheel(g, P, x, y, r){
 /* Auto, Seitenansicht. x = Mitte, y = Fahrbahn (Unterkante Räder), s = Maßstab (Länge ≈ 64·s), farbe: rot|blau|gelb|grau */
 function car(p, defs, x, y, s=1, farbe="rot"){
   const P = paints(defs), g = add(p, "g", {transform:`translate(${x},${y}) scale(${s})`, filter:P.sh});
-  add(g, "path", {d:"M-32,-8 L-32,-15 Q-31,-19 -26,-20 L-16,-21 L-8,-30 Q-5,-32 0,-32 L13,-32 Q18,-32 21,-28 L26,-21 L30,-20 Q33,-19 33,-15 L33,-8 Z", fill:P[farbe], stroke:"#3a1a10", "stroke-width":.6});
-  add(g, "path", {d:"M-14,-21 L-7,-29 L-1,-29 L-1,-21 Z M1,-21 L1,-29 L12,-29 Q16,-29 18,-26 L22,-21 Z", fill:P.glas});
+  add(g, "path", {d:"M-32,-8 L-32,-15 Q-31,-19 -26,-20 L-16,-21 L-8,-30 Q-5,-32 0,-32 L13,-32 Q18,-32 21,-28 L26,-21 L30,-20 Q33,-19 33,-15 L33,-8 Z", fill:P[farbe], stroke:({blau:"#0b2f4c", gelb:"#6a4500", grau:"#3f474f", gruen:"#0b3a20"})[farbe] || "#3a1a10", "stroke-width":.6});
+  add(g, "path", {d:"M-14,-21 L-7,-29 L-1,-29 L-1,-21 Z M1,-21 L1,-29 L12,-29 Q16,-29 18,-26 L22,-21 Z", fill:P.glasD});
   add(g, "rect", {x:27, y:-17, width:5, height:3, rx:1, fill:"#fff6c8"});
   add(g, "rect", {x:-32, y:-17, width:3, height:3, rx:1, fill:"#c0302a"});
   wheel(g, P, -18, -6, 6.2); wheel(g, P, 19, -6, 6.2);
@@ -2492,14 +2493,26 @@ const add = (p, tag, a, k) => p.appendChild(el(tag, a, k));
 const T = (p, x, y, txt, cls="lbl-s", extra={}) => add(p, "text", Object.assign({x, y, class:cls}, extra), [txt]);
 const SPUR = {l:66, r:88};                     // Mitte des oberen bzw. unteren Fahrstreifens
 
+/* v0.4: Farben für die Draufsicht: Karosserie quer schattiert (Rand dunkel, Mitte heller, ohne grellen Glanzstreifen), Dach etwas dunkler, Scheiben dunkel getönt */
+const TOP = {blau:["#14406e","#2a6db3","#5b97d6"], rot:["#7a1710","#cc372c","#ee6a5e"], gelb:["#8a5a00","#e2a312","#f6cc55"], grau:["#555e66","#9ea8b1","#d3d9de"], gruen:["#0d4526","#2a8f53","#5cc184"]};
+const topCache = new WeakMap();
+function topPaint(defs, farbe){
+  let m = topCache.get(defs); if(!m){ m = {}; topCache.set(defs, m); }
+  const k = TOP[farbe] ? farbe : "blau"; if(m[k]) return m[k];
+  const [d, b, l] = TOP[k];
+  m[k] = {dark:d, body:lin(defs, [[0,d],[.22,b],[.5,l],[.78,b],[1,d]], 0,0,0,1), dach:lin(defs, [[0,d],[.3,b],[.7,b],[1,d]], 0,0,0,1),
+    glas:lin(defs, [[0,"#1c2731"],[.5,"#4a6478"],[1,"#1c2731"]], 0,0,0,1)};
+  return m[k];
+}
 function fz(p, defs, typ, x, y, dir=1, farbe="blau", nr){
   const sc = {lkw:1.2, motorrad:1.7, rad:1.6, zug:1.1}[typ] || 1.3;                       // Fahrzeuge vergrößert (nicht maßstäblich)
   const P = KIN.paints(defs), g = add(p, "g", {transform:`translate(${x},${y}) scale(${dir*sc},${sc})`, filter:P.sh});
   const glas = P.glas;
   if(typ === "lkw"){
     add(g, "rect", {x:-26, y:-8, width:36, height:16, rx:1.5, fill:P.grau, stroke:"#3f474f", "stroke-width":.7});
-    add(g, "rect", {x:11, y:-7.5, width:13, height:15, rx:3, fill:P[farbe] || P.blau, stroke:"#0b2f4c", "stroke-width":.7});
-    add(g, "rect", {x:19, y:-6, width:3.5, height:12, rx:1, fill:glas});
+    const C = topPaint(defs, farbe);
+    add(g, "rect", {x:11, y:-7.5, width:13, height:15, rx:3, fill:C.body, stroke:C.dark, "stroke-width":.7});
+    add(g, "rect", {x:19, y:-6, width:3.5, height:12, rx:1, fill:C.glas});
   } else if(typ === "motorrad"){
     add(g, "rect", {x:-8, y:-2.2, width:16, height:4.4, rx:2.2, fill:"#2a2f35"});
     add(g, "ellipse", {cx:0, cy:0, rx:5, ry:3.2, fill:P[farbe] || P.rot, stroke:"#3a1a10", "stroke-width":.5});
@@ -2512,11 +2525,16 @@ function fz(p, defs, typ, x, y, dir=1, farbe="blau", nr){
   } else if(typ === "rad"){
     add(g, "rect", {x:-7, y:-1.2, width:14, height:2.4, rx:1.2, fill:"#2a2f35"});
     add(g, "circle", {cx:-1, cy:0, r:2.8, fill:P[farbe] || P.gelb, stroke:"#7a4f00", "stroke-width":.5});
-  } else {
-    add(g, "rect", {x:-13, y:-6.5, width:26, height:13, rx:4, fill:P[farbe] || P.blau, stroke:"#0b2f4c", "stroke-width":.7});
-    add(g, "path", {d:"M3,-5 L7.5,-5.5 Q9,0 7.5,5.5 L3,5 Z", fill:glas});
-    add(g, "path", {d:"M-6,-5 L-9.5,-5 Q-10.5,0 -9.5,5 L-6,5 Z", fill:glas});
-    add(g, "rect", {x:11, y:-5.5, width:2, height:2.4, rx:.6, fill:"#fff6c8"}); add(g, "rect", {x:11, y:3.1, width:2, height:2.4, rx:.6, fill:"#fff6c8"});
+  } else {                                                                                  // v0.4 (17.11.2026): Pkw neu gezeichnet (Lehrkraft: „die blauen Autos … sehen schrecklich aus“)
+    const C = topPaint(defs, farbe);                                                       // Räder, Karosserie, Dach, dunkle Scheiben, Spiegel, Lichter
+    [[-10, -7.6], [-10, 5.4], [5, -7.6], [5, 5.4]].forEach(([x, y]) => add(g, "rect", {x, y, width:5.2, height:2.2, rx:.8, fill:"#1b1f23"}));
+    add(g, "rect", {x:-13, y:-6.5, width:26, height:13, rx:4.2, fill:C.body, stroke:C.dark, "stroke-width":.7});
+    add(g, "path", {d:"M2.6,-5.2 L7.4,-4.6 Q8.6,0 7.4,4.6 L2.6,5.2 Z", fill:C.glas});                         // Frontscheibe
+    add(g, "path", {d:"M-6.2,-4.9 L-9.6,-4.3 Q-10.4,0 -9.6,4.3 L-6.2,4.9 Z", fill:C.glas});                     // Heckscheibe
+    add(g, "rect", {x:-6.4, y:-4.9, width:9.2, height:9.8, rx:2, fill:C.dach, stroke:C.dark, "stroke-width":.4}); // Dach
+    [-7.2, 7.2].forEach(y => add(g, "ellipse", {cx:2.2, cy:y, rx:1.4, ry:.9, fill:C.dark}));                    // Spiegel
+    [-4.6, 2.4].forEach(y => add(g, "rect", {x:11.4, y, width:1.5, height:2.2, rx:.6, fill:"#fff4c2"}));       // Scheinwerfer
+    [-4.6, 2.6].forEach(y => add(g, "rect", {x:-13.1, y, width:1.1, height:2, rx:.4, fill:"#d0342c"}));        // Rücklichter
   }
   if(nr != null){ const q = add(p, "g", {}), xn = x - dir*sc*(typ === "lkw" ? 34 : typ === "zug" ? 40 : 20);      // Nummer hinter dem Fahrzeug
     add(q, "circle", {cx:xn, cy:y, r:8.5, style:"fill:var(--surface);stroke:var(--ink);stroke-width:1.2"});
